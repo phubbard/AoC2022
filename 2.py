@@ -1,5 +1,5 @@
 
-DATAFILE = './2/input.txt'
+DATAFILE = './data/2.txt'
 
 # R/P/S scores
 score_scales = {

@@ -29,11 +29,6 @@ Sample data
 winner is elf 4 at 24000
 """
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
-log = logging.getLogger()
-
 test_data = """
 1000
 2000
@@ -50,7 +45,7 @@ test_data = """
 
 10000"""
 
-DATAFILE = './1/input.txt'
+DATAFILE = './data/1.txt'
 data = open(DATAFILE, 'r').readlines()
 
 def compute_totals(data):

@@ -8,7 +8,7 @@ test_ranges = """
 6-6,4-6
 2-6,4-8"""
 
-DATAFILE = './4/input.txt'
+DATAFILE = './data/4.txt'
 
 def parse_line(data_line):
     ranges = data_line.strip().split(',')

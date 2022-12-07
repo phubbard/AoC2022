@@ -22,7 +22,7 @@ CrZsJsPPZsGzwwsLwLmpwMDw"""
 
 two_common = 'Zr'
 
-DATAFILE = './3/input.txt'
+DATAFILE = './data/3.txt'
 
 
 def split_line(rs_line):
