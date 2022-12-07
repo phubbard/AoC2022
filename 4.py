@@ -8,7 +8,7 @@ test_ranges = """
 6-6,4-6
 2-6,4-8"""
 
-
+DATAFILE = './4/input.txt'
 
 def parse_line(data_line):
     ranges = data_line.strip().split(',')
@@ -38,10 +38,26 @@ def subset(data_line):
     return False
 
 
+def in_range(number, range):
+    return number >= range[0] and number <= range[1]
+
+
 def overlap(data_line):
     r1, r2 = parse_line(data_line)
 
-    if r1[1]
+    if in_range(r1[1], r2):
+        return True
+
+    if in_range(r2[1], r1):
+        return True
+
+    if in_range(r1[0], r2):
+        return True
+
+    if in_range(r2[0], r1):
+        return True
+
+    return False
 
 
 def test_data_subset():
@@ -54,15 +70,30 @@ def test_data_subset():
     print(count)
 
 
-def run_step_one():
-    data_lines = open('./4/input.txt', 'r').readlines()
+def test_data_overlap():
     count = 0
+    for line in test_ranges.split('\n'):
+        if len(line) == 0:
+            continue
+        if overlap(line):
+            count += 1
+    print(f'{count} overlaps in  test dataset')
+
+
+def run_steps():
+    data_lines = open(DATAFILE, 'r').readlines()
+    subset_count = 0
+    overlap_count = 0
     for line in data_lines:
         if subset(line):
-            count += 1
-    print(f'{count} found out of {len(data_lines)}')
+            subset_count += 1
+        if overlap(line):
+            overlap_count += 1
+    print(f'{subset_count} subsets found, {overlap_count} overlaps out of {len(data_lines)}')
+
 
 
 if __name__ == '__main__':
     test_data_subset()
-    run_step_one()
+    run_steps()
+    test_data_overlap()
