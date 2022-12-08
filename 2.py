@@ -33,6 +33,7 @@ throw_map = {
 
 }
 
+
 def score_game(me, opponent):
     me_c = canonical_map[me]
     them_c = canonical_map[opponent]

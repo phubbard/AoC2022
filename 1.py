@@ -48,6 +48,7 @@ test_data = """
 DATAFILE = './data/1.txt'
 data = open(DATAFILE, 'r').readlines()
 
+
 def compute_totals(data):
     elves = []
     sum = 0
@@ -61,6 +62,7 @@ def compute_totals(data):
 
     return elves
 
+
 def report_highest(elves):
     max = 0
     index = -1
@@ -72,10 +74,12 @@ def report_highest(elves):
 
     print(f'Max value {max} held by elf {index}')
 
+
 def top_three(elves):
     elves.sort()
     elves.reverse()
     return elves[0:3]
+
 
 if __name__ == '__main__':
     elves = compute_totals(test_data.split('\n'))
