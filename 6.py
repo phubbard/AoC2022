@@ -15,7 +15,7 @@ def find_unique(input, seq_len):
     for idx in range(len(input)):
         window = input[idx: idx + seq_len]
         set_buf = set(window)
-        if (len(set_buf) == seq_len):
+        if len(set_buf) == seq_len:
             return idx + seq_len
 
 
