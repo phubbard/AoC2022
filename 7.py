@@ -74,10 +74,10 @@ def calc_size(directory):
 
     if cur_size < MAX_DIRSIZE:
         P1_TOTAL += cur_size
-        directory.size = cur_size
         print(f"{cur_size} bytes found in {directory.name}")
-        return cur_size
-    return 0
+
+    directory.size = cur_size
+    return cur_size
 
 
 def parse_history(data_lines):
@@ -122,5 +122,5 @@ def run_p1_data():
 
 
 if __name__ == '__main__':
-    run_test_data()
-    # run_p1_data()
+    # run_test_data()
+    run_p1_data()
