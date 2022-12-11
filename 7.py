@@ -138,15 +138,14 @@ def find_p2_dir(free):
     global dir_list
     flatten_tree(root)
     dir_list.sort(key=itemgetter('size'))
-    for item in dir_list:
-        print(item)
+    # for item in dir_list:
+    #     print(item)
 
     for item in dir_list:
         if item['size'] + free < FS_NEEDED:
             continue
         print(f'{item} wins')
         break
-
 
 
 def run_test_data():
