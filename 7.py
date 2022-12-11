@@ -1,9 +1,12 @@
 
+from operator import itemgetter
 from anytree import AnyNode, RenderTree, AsciiStyle, search
 
 
 MAX_DIRSIZE = 100000
-P1_TOTAL =0
+P1_TOTAL = 0
+FS_TOTAL = 70_000_000
+FS_NEEDED = 30_000_000
 
 root = AnyNode(name='/', type='d', size=0)
 cwd = root
@@ -55,9 +58,9 @@ def cd(dest_dir):
 
 
 def calc_size(directory):
+    # Recursively calculate the size of a directory
     global P1_TOTAL
 
-    # Recursively calculate the size of a directory
     if not directory:
         return 0
 
@@ -74,7 +77,7 @@ def calc_size(directory):
 
     if cur_size < MAX_DIRSIZE:
         P1_TOTAL += cur_size
-        print(f"{cur_size} bytes found in {directory.name}")
+        # print(f"{cur_size} bytes found in {directory.name}")
 
     directory.size = cur_size
     return cur_size
@@ -84,7 +87,7 @@ def parse_history(data_lines):
     global cwd
 
     for line in data_lines:
-        print(f"Working on {line}")
+        # print(f"Working on {line}")
         # print(RenderTree(root, style=AsciiStyle()))
 
         if len(line) == 0:
@@ -109,8 +112,41 @@ def parse_history(data_lines):
         else:  # Dup - FIXME
             pass
 
-    print(RenderTree(root, style=AsciiStyle()))
-    print(f"Total size is {calc_size(root)} {P1_TOTAL} eligible")
+    # print(RenderTree(root, style=AsciiStyle()))
+    size = calc_size(root)
+    print(f"Total size is {size} {P1_TOTAL} eligible")
+    return size
+
+dir_list = []
+
+
+def flatten_tree(cur_node):
+    global dir_list
+    if not cur_node:
+        return
+    if not cur_node.children:
+        return
+
+    # Flatten tree into sorted name,size list to solve part two
+    for entry in cur_node.children:
+        if entry.type == 'd':
+            dir_list.append({'size': calc_size(entry), 'name': entry.name})
+            flatten_tree(entry)
+
+
+def find_p2_dir(free):
+    global dir_list
+    flatten_tree(root)
+    dir_list.sort(key=itemgetter('size'))
+    for item in dir_list:
+        print(item)
+
+    for item in dir_list:
+        if item['size'] + free < FS_NEEDED:
+            continue
+        print(f'{item} wins')
+        break
+
 
 
 def run_test_data():
@@ -118,7 +154,8 @@ def run_test_data():
 
 
 def run_p1_data():
-    parse_history(open(DATAFILE, 'r').readlines())
+    free = FS_TOTAL - parse_history(open(DATAFILE, 'r').readlines())
+    find_p2_dir(free)
 
 
 if __name__ == '__main__':
