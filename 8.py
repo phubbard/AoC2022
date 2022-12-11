@@ -10,6 +10,7 @@ test_data = [
 ]
 
 test_viz_count = 21
+test_scenic_max = 8
 DATAFILE = './data/8.txt'
 
 
@@ -24,9 +25,9 @@ def parse_lines(data_lines) -> List[List[int]]:
     return rc
 
 
-def recalc_visibility(data):
+def calc_visibility(data) -> int:
     rows = len(data[0])
-    cols = rows # Hardwired for square
+    cols = rows
     # Weird corner rules but shrug
     viz_count = ((2 * rows) + (2 * cols)) - 4
     print(f'Edge count {viz_count}')
@@ -56,21 +57,69 @@ def recalc_visibility(data):
     return viz_count
 
 
+def calc_scenic_vec(vector) -> int:
+    if len(vector) == 0:
+        return 0
+
+    ~tzero = vector[0]
+    count = 0
+    idx = 1
+    while idx < len(vector):
+        count += 1
+        if vector[idx] >= tzero:
+            break
+        idx += 1
+
+    return count
+
+
+def calc_scenic_max(data) -> int:
+    rows = len(data[0])
+    cols = rows
+
+    max_score = 0
+    for row_idx in range(0, rows):
+        for col_idx in range(0, cols):
+            left_look = data[row_idx][0:col_idx + 1]
+            left_look.reverse()
+            left_count = calc_scenic_vec(left_look)
+
+            right_look = data[row_idx][col_idx:]
+            right_count = calc_scenic_vec(right_look)
+
+            col = [row[col_idx] for row in data]
+            up_look = col[0: row_idx + 1]
+            up_look.reverse()
+            up_count = calc_scenic_vec(up_look)
+
+            down_look = col[row_idx:]
+            down_count = calc_scenic_vec(down_look)
+
+            cur_score = left_count * right_count * up_count * down_count
+            if cur_score > max_score:
+                max_score = cur_score
+
+    print(f'Max score {max_score}')
+    return max_score
+
+
 def run_test_data():
     data = parse_lines(test_data)
-    count = recalc_visibility(data)
-    print(f"{count} found, should be 21")
+    count = calc_visibility(data)
+    print(f"{count} found, should be {test_viz_count}")
     assert count == test_viz_count
+    view_max = calc_scenic_max(data)
+    print(f"{view_max} scenic max found, should be {test_scenic_max}")
+    assert view_max == test_scenic_max
 
 
 def run_step():
-    data_lines = open(DATAFILE, 'r')
-    data = parse_lines(data_lines)
-    count = recalc_visibility(data)
-    print(f"{count} found in data file")
+    data = parse_lines(open(DATAFILE, 'r'))
+    count = calc_visibility(data)
+    scenic_best = calc_scenic_max(data)
+    print(f"{count} found in data file, scene max {scenic_best}")
 
 
 if __name__ == '__main__':
     run_test_data()
     run_step()
-
