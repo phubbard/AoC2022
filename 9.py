@@ -210,16 +210,16 @@ def run_step_two(data_lines):
             knots[9] = do_move(knots[9], correction)
             saved_tailpath.add((knots[9].row, knots[9].col,))
 
-    print(f'Step two {len(saved_tailpath)}')
     visualize_tailpath(saved_tailpath)
+    print(f'Step two {len(saved_tailpath)}')
 
 
 if __name__ == '__main__':
-    # test_mn()
-    # test_move()
-    # test_decide_move()
-    # run_data(test_data.split('\n'))
-    # run_data(open(DATAFILE, 'r'))
-    # run_step_two(test_data.split('\n'))
-    # run_step_two(step_two_test_data.split('\n'))
+    test_mn()
+    test_move()
+    test_decide_move()
+    run_data(test_data.split('\n'))
+    run_data(open(DATAFILE, 'r'))
+    run_step_two(test_data.split('\n'))
+    run_step_two(step_two_test_data.split('\n'))
     run_step_two(open(DATAFILE, 'r'))
