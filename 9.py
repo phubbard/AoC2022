@@ -14,7 +14,15 @@ R 2
 """
 test_visited = 13
 DATAFILE = "./data/9.txt"
-
+step_two_test_data = """R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20"""
+step_two_visited = 36
 Move = Enum('Move', ['UL', 'U', 'UR', 'L', 'NOOP', 'R', 'LD', 'D', 'DR'])
 
 
@@ -25,6 +33,7 @@ class Point:
 
 
 def str_to_move(move_str: str) -> Move:
+    # Is there a clever way to do this?
     match move_str:
         case 'L':
             return Move.L
@@ -65,7 +74,7 @@ def do_move(begin: Point, direction: Move) -> Point:
 
 
 def move_needed(head: Point, tail: Point) -> bool:
-    max_dist = sqrt(2.0) + 0.01
+    max_dist = sqrt(2.0)
     dist_squared = (head.row - tail.row) ** 2 + (head.col - tail.col) ** 2
     dist = sqrt(dist_squared)
     return dist > max_dist
@@ -161,9 +170,56 @@ def run_data(data_lines):
     print(f'{visited} visited')
 
 
+def visualize_tailpath(tailpath: set):
+    min_row = min([x[0] for x in tailpath])
+    max_row = max([x[0] for x in tailpath])
+    min_col = min([x[1] for x in tailpath])
+    max_col = max([x[1] for x in tailpath])
+    num_rows = max_row - min_row
+    num_cols = max_col - min_col
+
+    for row in range(max_row, min_row - 1, -1):
+        rc = ''
+        for col in range(min_col, max_col + 1):
+            if (row, col,) in tailpath:
+                rc += '#'
+            else:
+                rc += '.'
+        print(rc)
+
+
+def run_step_two(data_lines):
+    knots = [Point(0, 0) for _ in range(10)]
+    saved_tailpath = set()
+
+    for line in data_lines:
+        if len(line) == 0:
+            continue
+
+        tokens = line.strip().split(' ')
+        string = tokens[0]
+        move = str_to_move(string)
+        reps = int(tokens[1])
+
+        for idx in range(reps):
+            knots[0] = do_move(knots[0], move)
+            for knot_idx in range(9):
+                correction = decide_move(knots[knot_idx], knots[knot_idx + 1])
+                knots[knot_idx + 1] = do_move(knots[knot_idx + 1], correction)
+            correction = decide_move(knots[8], knots[9])
+            knots[9] = do_move(knots[9], correction)
+            saved_tailpath.add((knots[9].row, knots[9].col,))
+
+    print(f'Step two {len(saved_tailpath)}')
+    visualize_tailpath(saved_tailpath)
+
+
 if __name__ == '__main__':
-    test_mn()
-    test_move()
-    test_decide_move()
-    run_data(test_data.split('\n'))
-    run_data(open(DATAFILE, 'r'))
+    # test_mn()
+    # test_move()
+    # test_decide_move()
+    # run_data(test_data.split('\n'))
+    # run_data(open(DATAFILE, 'r'))
+    # run_step_two(test_data.split('\n'))
+    # run_step_two(step_two_test_data.split('\n'))
+    run_step_two(open(DATAFILE, 'r'))
