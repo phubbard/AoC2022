@@ -48,7 +48,7 @@ def cpu_sim():
     medium_datafile = "./data/10-b.txt"
     datafile = "./data/10.txt"
 
-    for instruction in open(medium_datafile, 'r'):
+    for instruction in open(datafile, 'r'):
     # for instruction in test_program.split('\n'):
         if len(instruction) == 0:
             continue
