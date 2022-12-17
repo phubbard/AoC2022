@@ -1,6 +1,12 @@
 
 DATAFILE = './data/12.txt'
 
+# Whoa, this takes me back. Some reference pages
+# https://en.wikipedia.org/wiki/Dijkstra's_algorithm
+# https://en.wikipedia.org/wiki/Adjacency_matrix
+# https://www.geeksforgeeks.org/python-program-for-dijkstras-shortest-path-algorithm-greedy-algo-7/
+
+
 test_data = """
 Sabqponm
 abcryxxl
