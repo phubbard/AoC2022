@@ -9,7 +9,7 @@ FS_TOTAL = 70_000_000
 FS_NEEDED = 30_000_000
 
 root = AnyNode(name='/', type='d', size=0)
-cwd = root
+cwd: AnyNode = root
 
 DATAFILE = './data/7.txt'
 
