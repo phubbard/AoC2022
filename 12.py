@@ -53,14 +53,13 @@ def parse_input(data_lines):
         elevation_map.append([])
         col_idx = 0
         for cell in line:
-            match cell:
-                case 'S':
+            if cell == 'S':
                     start = (row_idx, col_idx, )
                     elevation_map[row_idx].append(0)
-                case 'E':
+            elif cell == 'E':
                     end = (row_idx, col_idx, )
                     elevation_map[row_idx].append(to_int('z'))
-                case _:
+            else:
                     elevation_map[row_idx].append(to_int(cell))
             col_idx += 1
         row_idx += 1
