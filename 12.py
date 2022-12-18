@@ -111,18 +111,22 @@ class Grid:
         to_square   = self.GRID_SQUARES_BY_INSTANCE[to_instance]
 
         if from_square == to_square: return False
-        if abs(from_square.SQUARE_X - to_square.SQUARE_X) > 1: return False
-        if abs(from_square.SQUARE_Y - to_square.SQUARE_Y) > 1: return False
         if from_square.SQUARE_ELEVATION + 1 < to_square.SQUARE_ELEVATION: return False
 
-        return True
+        if abs(from_square.SQUARE_X - to_square.SQUARE_X) > 1: return False
+        if abs(from_square.SQUARE_Y - to_square.SQUARE_Y) > 1: return False
+
+        if from_square.SQUARE_X == to_square.SQUARE_X: return True
+        if from_square.SQUARE_Y == to_square.SQUARE_Y: return True
+
+        return False
 
     def create_adjacency_matrix(self):
         rv = []
         for from_instance in range(self.GRID_INSTANCES):
             current_row = []
             for to_instance in range(self.GRID_INSTANCES):
-                value = 1 if self.is_traversable(from_instance, to_instance) else 0
+                value = 1 if self.is_traversable(from_instance, to_instance) else 9999999
                 current_row.append(value)
             rv.append(tuple(current_row))
         return tuple(rv)
@@ -137,95 +141,67 @@ def to_adjacency(map):
 ##########################################################
 #
 #  FROM:  https://www.geeksforgeeks.org/python-program-for-dijkstras-shortest-path-algorithm-greedy-algo-7/
-
-# Python program for Dijkstra's single
-# source shortest path algorithm. The program is
-# for adjacency matrix representation of the graph
-class Graph():
-
-	def __init__(self, vertices):
-		self.V = vertices
-		self.graph = [[0 for column in range(vertices)]
-					for row in range(vertices)]
-
-	def printSolution(self, dist):
-		print("Vertex \t Distance from Source")
-		for node in range(self.V):
-			print(node, "\t\t", dist[node])
-
-	# A utility function to find the vertex with
-	# minimum distance value, from the set of vertices
-	# not yet included in shortest path tree
-	def minDistance(self, dist, sptSet):
-
-		# Initialize minimum distance for next node
-		min = 1e7
-
-		# Search not nearest vertex not in the
-		# shortest path tree
-		for v in range(self.V):
-			if dist[v] < min and sptSet[v] == False:
-				min = dist[v]
-				min_index = v
-
-		return min_index
-
-	# Function that implements Dijkstra's single source
-	# shortest path algorithm for a graph represented
-	# using adjacency matrix representation
-	def dijkstra(self, src, dest):
-
-		dist = [1e7] * self.V
-		dist[src] = 0
-		sptSet = [False] * self.V
-
-		for cout in range(self.V):
-			if cout != dest:
-				log(f"SKKIPPING {cout}")
-				continue
-
-			# Pick the minimum distance vertex from
-			# the set of vertices not yet processed.
-			# u is always equal to src in first iteration
-			u = self.minDistance(dist, sptSet)
-
-			# Put the minimum distance vertex in the
-			# shortest path tree
-			sptSet[u] = True
-
-			# Update dist value of the adjacent vertices
-			# of the picked vertex only if the current
-			# distance is greater than new distance and
-			# the vertex in not in the shortest path tree
-			for v in range(self.V):
-				if (self.graph[u][v] > 0 and
-				sptSet[v] == False and
-				dist[v] > dist[u] + self.graph[u][v]):
-					dist[v] = dist[u] + self.graph[u][v]
-
-		self.printSolution(dist)
-
-# Driver program
-def test_algorithm():
-    g = Graph(9)
-    g.graph = [[0, 4, 0, 0, 0, 0, 0, 8, 0],
-    		[4, 0, 8, 0, 0, 0, 0, 11, 0],
-    		[0, 8, 0, 7, 0, 4, 0, 0, 2],
-    		[0, 0, 7, 0, 9, 14, 0, 0, 0],
-    		[0, 0, 0, 9, 0, 10, 0, 0, 0],
-    		[0, 0, 4, 14, 10, 0, 2, 0, 0],
-    		[0, 0, 0, 0, 0, 2, 0, 1, 6],
-    		[8, 11, 0, 0, 0, 0, 1, 0, 7],
-    		[0, 0, 2, 0, 0, 0, 6, 7, 0]
-    		]
-    g.dijkstra(0)
-
-# This code is contributed by Divyanshu Mehta
-
-
+#
+#  SUSPECTED FAIL! CUT.
+#
 #  END
 #
 ##########################################################
+
+
+
+##########################################################
+#
+#  FROM:  https://www.udacity.com/blog/2021/10/implementing-dijkstras-algorithm-in-python.html
+#
+
+def dijkstra_algorithm(graph, start_node):
+    unvisited_nodes = list(graph.get_nodes())
+ 
+    # We'll use this dict to save the cost of visiting each node and update it as we move along the graph   
+    shortest_path = {}
+ 
+    # We'll use this dict to save the shortest known path to a node found so far
+    previous_nodes = {}
+ 
+    # We'll use max_value to initialize the "infinity" value of the unvisited nodes   
+    max_value = sys.maxsize
+    for node in unvisited_nodes:
+        shortest_path[node] = max_value
+    # However, we initialize the starting node's value with 0   
+    shortest_path[start_node] = 0
+    
+    # The algorithm executes until we visit all nodes
+    while unvisited_nodes:
+        # The code block below finds the node with the lowest score
+        current_min_node = None
+        for node in unvisited_nodes: # Iterate over the nodes
+            if current_min_node == None:
+                current_min_node = node
+            elif shortest_path[node] < shortest_path[current_min_node]:
+                current_min_node = node
+                
+        # The code block below retrieves the current node's neighbors and updates their distances
+        neighbors = graph.get_outgoing_edges(current_min_node)
+        for neighbor in neighbors:
+            tentative_value = shortest_path[current_min_node] + graph.value(current_min_node, neighbor)
+            if tentative_value < shortest_path[neighbor]:
+                shortest_path[neighbor] = tentative_value
+                # We also update the best path to the current node
+                previous_nodes[neighbor] = current_min_node
+ 
+        # After visiting its neighbors, we mark the node as "visited"
+        unvisited_nodes.remove(current_min_node)
+    
+    return previous_nodes, shortest_path
+
+#
+#  END
+#
+##########################################################
+
+
+
 
 
 if __name__ == '__main__':
@@ -237,7 +213,7 @@ if __name__ == '__main__':
     grid = Grid(two_dee_array)
     log(f"Get adjacency...")
     my_adjacency = grid.create_adjacency_matrix()
-    if False:
+    if True:
         log(f"show adjacency...")
         for idx, row in enumerate(my_adjacency):
             log(f" {idx:02}: -> {row}")
