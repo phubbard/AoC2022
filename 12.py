@@ -7,6 +7,10 @@ DATAFILE = './data/12.txt'
 # https://www.geeksforgeeks.org/python-program-for-dijkstras-shortest-path-algorithm-greedy-algo-7/
 
 
+def log(some_string):
+    print(f"P12: {some_string}")
+
+
 test_data = """
 Sabqponm
 abcryxxl
@@ -67,6 +71,60 @@ def parse_input(data_lines):
     print(elevation_map)
 
     return(start, end, elevation_map)
+
+
+class Square:
+
+    __slots__ = ('SQ_INSTANCE', 'SQ_X', 'SQ_Y', 'SQ_ELEVATION')
+
+    def __init__(self, instance, x, y, elevation):
+        self.SQUARE_INSTANCE  = instance
+        self.SQUARE_X         = x
+        self.SQUARE_Y         = y
+        self.SQUARE_ELEVATION = elevation
+
+
+class Grid:
+    def __init__(self, two_d_array_of_elevations):
+        squares_by_instance = []
+        squares_by_ordinate = []
+        max_x = 0
+        max_y = 0
+        for y, row in enumerate(two_d_array_of_elevations):
+            current_row = []
+            for x, elevation in enumerate(row):
+                new_square = Square(len(squares_by_instance), x, y, elevation)
+                squares_by_instance.append(new_square)
+                current_row.append(new_square)
+                max_x = max(max_x, x)
+                max_y = max(max_y, y)
+            squares_by_ordinate.append(tuple(current_row))
+
+        self.GRID_SQUARES_BY_INSTANCE = tuple(squares_by_instance)
+        self.GRID_SQUARES_BY_ORDINATE = tuple(squares_by_ordinate)
+        self.GRID_X_EXTENT            = max_x
+        self.GRID_Y_EXTENT            = max_y
+
+    def is_traversable(self, from_instance: int, to_instance: int) -> bool:
+        from_square = self.GRID_SQUARES_BY_INSTANCE[from_instance]
+        to_square   = self.GRID_SQUARES_BY_INSTANCE[to_instance]
+
+        if from_square == to_square: return False
+        if abs(from_square.SQUARE_X - to_square.SQUARE_X) > 1: return False
+        if abs(from_square.SQUARE_Y - to_square.SQUARE_Y) > 1: return False
+        if from_square.SQUARE_ELEVATION + 1 > to_square.SQUARE_ELEVATION: return False
+
+        return True
+
+    def create_adjacency_matrix(self):
+        rv = []
+        for from_instance in range(len(self.GRID_SQUARES_BY_INSTANCE)):
+            current_row = []
+            for to_instance in range(len(self.GRID_SQUARES_BY_INSTANCE)):
+                value = 1 if self.is_traversable(from_instance, to_instance) else 0
+                current_row[to_instance] = value
+            rv.append(tuple(current_row))
+        return tuple(rv)
 
 
 def to_adjacency(map):
@@ -167,5 +225,14 @@ def test_algorithm():
 
 
 if __name__ == '__main__':
+    log("Run test...")
     test_to_int()
-    parse_input(test_data.split('\n'))
+    log("Parse input...")
+    start_ordinate, end_ordinate, two_dee_array = parse_input(test_data.split('\n'))
+    log("Form the grid...")
+    grid = Grid(two_dee_array)
+    log("Get adjacency...")
+    adjacency = grid.create_adjacency_matrix()
+    log("Profit.")
+
+
