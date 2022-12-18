@@ -128,8 +128,8 @@ class Grid:
             for to_instance in range(self.GRID_INSTANCES):
                 value = 1 if self.is_traversable(from_instance, to_instance) else 0
                 current_row.append(value)
-            rv.append(tuple(current_row))
-        return tuple(rv)
+            rv.append(current_row)
+        return rv
 
 
 def to_adjacency(map):
