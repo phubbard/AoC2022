@@ -75,7 +75,7 @@ def parse_input(data_lines):
 
 class Square:
 
-    __slots__ = ('SQ_INSTANCE', 'SQ_X', 'SQ_Y', 'SQ_ELEVATION')
+    __slots__ = ('SQUARE_INSTANCE', 'SQUARE_X', 'SQUARE_Y', 'SQUARE_ELEVATION')
 
     def __init__(self, instance, x, y, elevation):
         self.SQUARE_INSTANCE  = instance
@@ -123,7 +123,7 @@ class Grid:
             current_row = []
             for to_instance in range(self.GRID_INSTANCES):
                 value = 1 if self.is_traversable(from_instance, to_instance) else 0
-                current_row[to_instance] = value
+                current_row.append(value)
             rv.append(tuple(current_row))
         return tuple(rv)
 
@@ -173,13 +173,16 @@ class Graph():
 	# Function that implements Dijkstra's single source
 	# shortest path algorithm for a graph represented
 	# using adjacency matrix representation
-	def dijkstra(self, src):
+	def dijkstra(self, src, dest):
 
 		dist = [1e7] * self.V
 		dist[src] = 0
 		sptSet = [False] * self.V
 
 		for cout in range(self.V):
+			if cout != dest:
+				log(f"SKKIPPING {cout}")
+				continue
 
 			# Pick the minimum distance vertex from
 			# the set of vertices not yet processed.
@@ -234,16 +237,22 @@ if __name__ == '__main__':
     grid = Grid(two_dee_array)
     log(f"Get adjacency...")
     my_adjacency = grid.create_adjacency_matrix()
-    log(f"Form Graph...")
-    graph = Graph(grid.GRID_INSTANCES)
-    log(f"Set the Graph's adjacency...")
-    graph.adjacency = my_adjacency
-    log(f"Locate start and end instances...")
-    starting_square = grid.GRID_SQUARES_BY_ORDINATE[start_ordinate[0]][start_ordinate[1]]
-    ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
-    log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
-    log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
-    g.dijkstra(starting_square.SQUARE_INSTANCE)
-    log(f"Profit!")
+    if False:
+        log(f"show adjacency...")
+        for idx, row in enumerate(my_adjacency):
+            log(f" {idx:02}: -> {row}")
+
+    if True:
+        log(f"Form Graph...")
+        graph = Graph(grid.GRID_INSTANCES)
+        log(f"Set the Graph's adjacency...")
+        graph.adjacency = my_adjacency
+        log(f"Locate start and end instances...")
+        starting_square = grid.GRID_SQUARES_BY_ORDINATE[start_ordinate[0]][start_ordinate[1]]
+        ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
+        log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
+        log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
+        graph.dijkstra(starting_square.SQUARE_INSTANCE, ending_square.SQUARE_INSTANCE)
+        log(f"Profit!")
    
 
