@@ -184,9 +184,6 @@ class Graph():
 		sptSet = [False] * self.V
 
 		for cout in range(self.V):
-			if cout != dest:
-				log(f"SKKIPPING {cout}")
-				continue
 
 			# Pick the minimum distance vertex from
 			# the set of vertices not yet processed.
