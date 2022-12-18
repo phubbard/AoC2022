@@ -102,6 +102,7 @@ class Grid:
 
         self.GRID_SQUARES_BY_INSTANCE = tuple(squares_by_instance)
         self.GRID_SQUARES_BY_ORDINATE = tuple(squares_by_ordinate)
+        self.GRID_INSTANCES           = len(self.GRID_SQUARES_BY_INSTANCE)
         self.GRID_X_EXTENT            = max_x
         self.GRID_Y_EXTENT            = max_y
 
@@ -112,15 +113,15 @@ class Grid:
         if from_square == to_square: return False
         if abs(from_square.SQUARE_X - to_square.SQUARE_X) > 1: return False
         if abs(from_square.SQUARE_Y - to_square.SQUARE_Y) > 1: return False
-        if from_square.SQUARE_ELEVATION + 1 > to_square.SQUARE_ELEVATION: return False
+        if from_square.SQUARE_ELEVATION + 1 < to_square.SQUARE_ELEVATION: return False
 
         return True
 
     def create_adjacency_matrix(self):
         rv = []
-        for from_instance in range(len(self.GRID_SQUARES_BY_INSTANCE)):
+        for from_instance in range(self.GRID_INSTANCES):
             current_row = []
-            for to_instance in range(len(self.GRID_SQUARES_BY_INSTANCE)):
+            for to_instance in range(self.GRID_INSTANCES):
                 value = 1 if self.is_traversable(from_instance, to_instance) else 0
                 current_row[to_instance] = value
             rv.append(tuple(current_row))
@@ -227,12 +228,22 @@ def test_algorithm():
 if __name__ == '__main__':
     log("Run test...")
     test_to_int()
-    log("Parse input...")
+    log(f"Parse input...")
     start_ordinate, end_ordinate, two_dee_array = parse_input(test_data.split('\n'))
-    log("Form the grid...")
+    log(f"Form the grid...")
     grid = Grid(two_dee_array)
-    log("Get adjacency...")
-    adjacency = grid.create_adjacency_matrix()
-    log("Profit.")
-
+    log(f"Get adjacency...")
+    my_adjacency = grid.create_adjacency_matrix()
+    log(f"Form Graph...")
+    graph = Graph(grid.GRID_INSTANCES)
+    log(f"Set the Graph's adjacency...")
+    graph.adjacency = my_adjacency
+    log(f"Locate start and end instances...")
+    starting_square = grid.GRID_SQUARES_BY_ORDINATE[start_ordinate[0]][start_ordinate[1]]
+    ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
+    log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
+    log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
+    g.dijkstra(starting_square.SQUARE_INSTANCE)
+    log(f"Profit!")
+   
 
