@@ -142,6 +142,7 @@ class Graph:
 
         # Search not nearest vertex not in the
         # shortest path tree
+        min_index = 0
         for v in range(self.V):
             if dist[v] < min and sptSet[v] == False:
                 min = dist[v]
@@ -183,31 +184,14 @@ class Graph:
         return dist
 
 
-# # Driver program
-# g = Graph(9)
-# g.graph = [[0, 4, 0, 0, 0, 0, 0, 8, 0],
-#            [4, 0, 8, 0, 0, 0, 0, 11, 0],
-#            [0, 8, 0, 7, 0, 4, 0, 0, 2],
-#            [0, 0, 7, 0, 9, 14, 0, 0, 0],
-#            [0, 0, 0, 9, 0, 10, 0, 0, 0],
-#            [0, 0, 4, 14, 10, 0, 2, 0, 0],
-#            [0, 0, 0, 0, 0, 2, 0, 1, 6],
-#            [8, 11, 0, 0, 0, 0, 1, 0, 7],
-#            [0, 0, 2, 0, 0, 0, 6, 7, 0]
-#            ]
-#
-# g.dijkstra(0)
-#
-# This code is contributed by Divyanshu Mehta
-
-
 def rc_to_idx(entry, num_cols):
     return entry[0] * num_cols + entry[1]
 
 
 if __name__ == '__main__':
     test_to_int()
-    start, end, map = parse_input(test_data.split('\n'))
+    # start, end, map = parse_input(test_data.split('\n'))
+    start, end, map = parse_input(open(DATAFILE, 'r'))
     a_map = to_adjacency(map)
     g = Graph(len(a_map[0]))
     g.graph = a_map
