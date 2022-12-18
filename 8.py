@@ -61,7 +61,7 @@ def calc_scenic_vec(vector) -> int:
     if len(vector) == 0:
         return 0
 
-    ~tzero = vector[0]
+    tzero = vector[0]
     count = 0
     idx = 1
     while idx < len(vector):
