@@ -104,7 +104,7 @@ class Dataset:
 
 def parse_input(data_lines):
 
-    groupings = data_lines.split("\n\n")
+    groupings = data_lines.strip().split("\n\n")
 
     raw_receptions = []
 
