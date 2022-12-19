@@ -127,6 +127,7 @@ def to_adjacency(map):
 # for adjacency matrix representation of the graph
 class Graph:
     def __init__(self, vertices):
+        log(f"ENTER Graph constrctor with vertices:{vertices}")
         self.V = vertices
         self.graph = [[0 for column in range(vertices)]
                       for row in range(vertices)]
@@ -158,6 +159,7 @@ class Graph:
     # shortest path algorithm for a graph represented
     # using adjacency matrix representation
     def dijkstra(self, src):
+        log(f"ENTER dijkstra with src:{src}")
 
         dist = [1e7] * self.V
         dist[src] = 0
@@ -184,7 +186,7 @@ class Graph:
                         dist[v] > dist[u] + self.graph[u][v]):
                     dist[v] = dist[u] + self.graph[u][v]
 
-        # self.printSolution(dist)
+        self.printSolution(dist)
         return dist
 
 # This code is contributed by Divyanshu Mehta
@@ -263,6 +265,34 @@ if True:
     log("End test.")
 
 
+#
+if True:
+    log(f"Parse input...")
+    start_ordinate, end_ordinate, two_dee_array = parse_input(test_data.split('\n'))
+    log(f"Form the grid...")
+    grid = Grid(two_dee_array)
+    log(f"Get adjacency...")
+    my_adjacency = grid.create_adjacency_matrix()
+    if True:
+        log(f"show adjacency...")
+        for idx, row in enumerate(my_adjacency):
+            log(f" {idx:02}: -> {row}")
+
+    if True:
+        log(f"Form Graph...")
+        my_graph = Graph(40)
+        log(f"Set the Graph's adjacency...")
+        my_graph.graph = my_adjacency
+        log(f"Locate start and end instances...")
+        starting_square = grid.GRID_SQUARES_BY_ORDINATE[start_ordinate[0]][start_ordinate[1]]
+        ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
+        log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
+        log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
+        solution_array = my_graph.dijkstra(10)
+        log(f"Solutions are -> {solution_array}")
+        log(f"Profit!")
+
+
 if True:
     start, end, map = parse_input(test_data.split('\n'))
     # start, end, map = parse_input(open(DATAFILE, 'r'))
@@ -284,36 +314,27 @@ if True:
     print(f"{start_idx} to {end_idx} min distance {distances[end_idx]}")
 
 
+
 if True:
-    log(f"Parse input...")
-    start_ordinate, end_ordinate, two_dee_array = parse_input(test_data.split('\n'))
-    log(f"Form the grid with param:{len(a_map[0])} ...")
-    grid = Grid(two_dee_array)
-    log(f"Get adjacency...")
-    my_adjacency = grid.create_adjacency_matrix()
-    if True:
-        log(f"show adjacency...")
-        for idx, row in enumerate(my_adjacency):
-            log(f" {idx:02}: -> {row}")
-
-    if True:
-        log(f"Form Graph...")
-        graph = Graph(grid.GRID_INSTANCES)
-        log(f"Set the Graph's adjacency...")
-        graph.adjacency = my_adjacency
-        log(f"Locate start and end instances...")
-        starting_square = grid.GRID_SQUARES_BY_ORDINATE[start_ordinate[0]][start_ordinate[1]]
-        ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
-        log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
-        log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
-        solution_array = graph.dijkstra(starting_square.SQUARE_INSTANCE)
-        log(f"Solutions are -> {solution_array}")
-        log(f"Profit!")
-
-    if True:
-        for whose, which in (('PAULS', a_map), ('BRADS', my_adjacency), ):
-            log(f"TYPEOF:  {whose}:{type(which)}")
-            log(f"SIZE:    {whose}:{len(which)}")
-            log(f"TYPEOFi: {whose}:{type(which[0])}")
-            log(f"SIZEi:   {whose}:{len(which[0])}")
+    for whose, which in (('PAULS', a_map), ('BRADS', my_adjacency), ):
+        log(f"TYPEOF:  {whose}:{type(which)}")
+        log(f"SIZE:    {whose}:{len(which)}")
+        log(f"TYPEOFi: {whose}:{type(which[0])}")
+        log(f"SIZEi:   {whose}:{len(which[0])}")
+        log(f"ELEMS:   {whose}:{which[0][0]}")
+        log(f"ELEMS:   {whose}:{which[0][1]}")
+        log(f"ELEMS:   {whose}:{which[0][2]}")
+        log(f"ELEMS:   {whose}:{which[0][3]}")
+        log(f"ELEMS:   {whose}:{which[1][0]}")
+        log(f"ELEMS:   {whose}:{which[1][1]}")
+        log(f"ELEMS:   {whose}:{which[1][2]}")
+        log(f"ELEMS:   {whose}:{which[1][3]}")
+        log(f"ELEMS:   {whose}:{which[2][0]}")
+        log(f"ELEMS:   {whose}:{which[2][1]}")
+        log(f"ELEMS:   {whose}:{which[2][2]}")
+        log(f"ELEMS:   {whose}:{which[2][3]}")
+    for x in range(40):
+        for y in range(40):
+            if a_map[x][y] == my_adjacency[x][y]: continue
+            raise Exception(f"BAD AT {x} {y}")
 
