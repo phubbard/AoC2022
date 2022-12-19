@@ -85,8 +85,8 @@ def compare_pair(left, right):
 class Reception:
     def __init__(self, indx, left, right):
         self.RECEPTION_INDEX = indx
-        self.RECEPTION_LEFT  = left
-        self.RECEPTION_RIGHT = right
+        self.RECEPTION_LEFT  = eval(left)
+        self.RECEPTION_RIGHT = eval(right)
 
     def __str__(self):
         rv = ""
@@ -104,7 +104,7 @@ class Dataset:
         rv = "<<DATASET"
         for idx, reception in enumerate(self.DATASET_TUPLE):
             rv += str(reception)
-        rv += ">>"
+        rv += "\n>>"
         return rv
 
 
@@ -127,7 +127,7 @@ def parse_input(data_lines):
 
 if __name__ == '__main__':
     log.info("Beginning parse...")
-    if True:
+    if False:
         dataset = parse_input(sample_data)
     else:
         dataset = parse_input(open(DATAFILE, 'r').read())
