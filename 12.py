@@ -63,8 +63,8 @@ def parse_input(data_lines):
                     elevation_map[row_idx].append(to_int(cell))
             col_idx += 1
         row_idx += 1
-    print(f"{start} {end}")
-    print(elevation_map)
+    print(f"start {start} end {end}")
+    # print(elevation_map)
 
     return start, end, elevation_map
 
@@ -79,7 +79,9 @@ def is_adjacent(source: int, dest: int, elevation_map) -> int:
 
     if source == dest:
         return 0  # Zeros on the diagonal by definition
-    if (dest_height - source_height) > 1:
+    # For part one, you can step up one or down many. For part two, only up or down one.
+    # if (dest_height - source_height) > 1:
+    if (source_height - dest_height) > 1:
         return 0
 
     if source_row == dest_row:
@@ -103,29 +105,25 @@ def to_adjacency(map):
     col_zero = [row[0] for row in map]
     num_rows = len(col_zero)
     num_cells = num_rows * num_cols
-    print(f"{num_cols} and {num_rows} == {num_cells}")
+    print(f"{num_cols} cols and {num_rows} rows == {num_cells}^2 in adjacency matrix")
     # Avert your eyes.
-    adj_matrix = [[0 for x in range(num_cells)] for y in range(num_cells)]
+    zero_row = [0 for x in range(num_cells)]
+    adj_matrix = [zero_row for y in range(num_cells)]
 
     for row_idx in range(num_cells):
         for col_idx in range(num_cells):
-            zero_one = is_adjacent(row_idx, col_idx, map)
-            adj_matrix[row_idx][col_idx] = zero_one
+            adj_matrix[row_idx][col_idx] = is_adjacent(row_idx, col_idx, map)
 
     return adj_matrix
 
 
-# Code from https://www.geeksforgeeks.org/python-program-for-dijkstras-shortest-path-algorithm-greedy-algo-7/
-# Python program for Dijkstra's single
-# source shortest path algorithm. The program is
-# for adjacency matrix representation of the graph
-
-
 class Graph:
+    # Code from https://www.geeksforgeeks.org/python-program-for-dijkstras-shortest-path-algorithm-greedy-algo-7/
+    # Python program for Dijkstra's single source shortest path algorithm. The program is
+    # for adjacency matrix representation of the graph.
     def __init__(self, vertices):
-        self.V = vertices
-        self.graph = [[0 for column in range(vertices)]
-                      for row in range(vertices)]
+        self.V = len(vertices[0])
+        self.graph = vertices
 
     def printSolution(self, dist):
         print("Vertex \t Distance from Source")
@@ -188,18 +186,38 @@ def rc_to_idx(entry, num_cols):
     return entry[0] * num_cols + entry[1]
 
 
+def idx_to_rc(idx, num_cols):
+    row, col = divmod(idx, num_cols)
+    return row, col
+
+
 if __name__ == '__main__':
     test_to_int()
-    # start, end, map = parse_input(test_data.split('\n'))
-    start, end, map = parse_input(open(DATAFILE, 'r'))
+    start, end, map = parse_input(test_data.split('\n'))
+    for row in map:
+        print(row)
+
+    # start, end, map = parse_input(open(DATAFILE, 'r'))
     a_map = to_adjacency(map)
-    g = Graph(len(a_map[0]))
-    g.graph = a_map
-    num_cols = len(map[0])
-    start_idx = rc_to_idx(start, num_cols)
-    end_idx = rc_to_idx(end, num_cols)
-    distances = g.dijkstra(start_idx)
-    print(f"{start_idx} to {end_idx} min distance {distances[end_idx]}")
+    g = Graph(a_map)
+    num_src_cols = len(map[0])
+    start_idx = rc_to_idx(start, num_src_cols)
+    end_idx = rc_to_idx(end, num_src_cols)
+    print(f"Starting from the end for part two - {end_idx}")
+    distances = g.dijkstra(end_idx)
+    print(f"Double check - {distances[start_idx]}")
+    # We now have an array of vertex, distance pairs, starting from the end index. Now we need to augment that
+    # with elevation data.
+    idx = 0   # FIXME RTFM for the index, value trick
+    fewest_steps = 999999
+    for path_length in distances:
+        row, col = idx_to_rc(idx, num_src_cols)
+        height = map[row][col]
+        if height == 0:
+            if path_length < fewest_steps:
+                fewest_steps = path_length
+        idx += 1
+    print(f"Min path length {fewest_steps}")
 
 
 
