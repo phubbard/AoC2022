@@ -127,7 +127,7 @@ def parse_input(data_lines):
 
 if __name__ == '__main__':
     log.info("Beginning parse...")
-    if False:
+    if True:
         dataset = parse_input(sample_data)
     else:
         dataset = parse_input(open(DATAFILE, 'r').read())
