@@ -8,6 +8,10 @@ DATAFILE = './data/12.txt'
 # https://www.geeksforgeeks.org/python-program-for-dijkstras-shortest-path-algorithm-greedy-algo-7/
 
 
+def log(some_string):
+    print(f"P12: {some_string}")
+
+
 test_data = """
 Sabqponm
 abcryxxl
@@ -54,14 +58,13 @@ def parse_input(data_lines):
         elevation_map.append([])
         col_idx = 0
         for cell in line:
-            match cell:
-                case 'S':
-                    start = (row_idx, col_idx,)
+            if cell == 'S':
+                    start = (row_idx, col_idx, )
                     elevation_map[row_idx].append(0)
-                case 'E':
-                    end = (row_idx, col_idx,)
+            elif cell == 'E':
+                    end = (row_idx, col_idx, )
                     elevation_map[row_idx].append(to_int('z'))
-                case _:
+            else:
                     elevation_map[row_idx].append(to_int(cell))
             col_idx += 1
         row_idx += 1
@@ -118,6 +121,9 @@ def to_adjacency(map):
 
     return adj_matrix
 
+
+##########################################################
+#
 
 class Graph:
     # Code from https://www.geeksforgeeks.org/python-program-for-dijkstras-shortest-path-algorithm-greedy-algo-7/
@@ -183,9 +189,97 @@ class Graph:
         # self.printSolution(dist)
         return dist
 
+# This code is contributed by Divyanshu Mehta
+
+#  END
+#
+##########################################################
+
+
+class Square:
+
+    __slots__ = ('SQUARE_INSTANCE', 'SQUARE_X', 'SQUARE_Y', 'SQUARE_ELEVATION')
+
+    def __init__(self, instance, x, y, elevation):
+        self.SQUARE_INSTANCE  = instance
+        self.SQUARE_X         = x
+        self.SQUARE_Y         = y
+        self.SQUARE_ELEVATION = elevation
+
+
+class Grid:
+    def __init__(self, two_d_array_of_elevations):
+        squares_by_instance = []
+        squares_by_ordinate = []
+        max_x = 0
+        max_y = 0
+        for y, row in enumerate(two_d_array_of_elevations):
+            current_row = []
+            for x, elevation in enumerate(row):
+                new_square = Square(len(squares_by_instance), x, y, elevation)
+                squares_by_instance.append(new_square)
+                current_row.append(new_square)
+                max_x = max(max_x, x)
+                max_y = max(max_y, y)
+            squares_by_ordinate.append(tuple(current_row))
+
+        self.GRID_SQUARES_BY_INSTANCE = tuple(squares_by_instance)
+        self.GRID_SQUARES_BY_ORDINATE = tuple(squares_by_ordinate)
+        self.GRID_INSTANCES           = len(self.GRID_SQUARES_BY_INSTANCE)
+        self.GRID_X_EXTENT            = max_x
+        self.GRID_Y_EXTENT            = max_y
+
+    def is_traversable(self, from_instance: int, to_instance: int) -> bool:
+        from_square = self.GRID_SQUARES_BY_INSTANCE[from_instance]
+        to_square   = self.GRID_SQUARES_BY_INSTANCE[to_instance]
+
+        if from_square == to_square: return False
+        if to_square.SQUARE_ELEVATION + 1 < from_square.SQUARE_ELEVATION: return False
+
+        if abs(from_square.SQUARE_X - to_square.SQUARE_X) > 1: return False
+        if abs(from_square.SQUARE_Y - to_square.SQUARE_Y) > 1: return False
+
+        if from_square.SQUARE_X == to_square.SQUARE_X: return True
+        if from_square.SQUARE_Y == to_square.SQUARE_Y: return True
+
+        return False
+
+    def create_adjacency_matrix(self):
+        rv = []
+        for from_instance in range(self.GRID_INSTANCES):
+            current_row = []
+            for to_instance in range(self.GRID_INSTANCES):
+                value = 1 if self.is_traversable(from_instance, to_instance) else 0
+                current_row.append(value)
+            rv.append(current_row)
+        return rv
+
+
 
 def rc_to_idx(entry, num_cols):
     return entry[0] * num_cols + entry[1]
+
+
+if True:
+    log(f"Parse input...")
+    start_ordinate, end_ordinate, two_dee_array = parse_input(test_data.split('\n'))
+    log(f"Form the grid...")
+    grid = Grid(two_dee_array)
+    log(f"Get adjacency...")
+    my_adjacency = grid.create_adjacency_matrix()
+
+    if True:
+        log(f"Form Graph...")
+        my_graph = Graph(my_adjacency)
+        log(f"Locate start and end instances...")
+        starting_square = grid.GRID_SQUARES_BY_ORDINATE[start_ordinate[0]][start_ordinate[1]]
+        ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
+        log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
+        log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
+        solution_array = my_graph.dijkstra(ending_square.SQUARE_INSTANCE)
+        log(f"Solutions are -> {solution_array}")
+        log(f"Key solution is -> {solution_array[starting_square.SQUARE_INSTANCE]}")
+        log(f"Profit!")
 
 
 if __name__ == '__main__':
@@ -205,19 +299,17 @@ if __name__ == '__main__':
     print(f"Double check - {distances[start_idx]}")
     # We now have an array of vertex, distance pairs, starting from the end index. Now we need to augment that
     # with elevation data.
-    idx = 0   # FIXME RTFM for the index, value trick
     fewest_steps = 999999
-    for path_length in distances:
+    for idx, path_length in enumerate(distances):
         row1, col1 = divmod(idx, num_src_cols)
         result = row1, col1
         row, col = result
         height = map[row][col]
         if height == 0:
-            if path_length < fewest_steps:
-                fewest_steps = path_length
-        idx += 1
+            fewest_steps = min(fewest_steps, path_length)
     print(f"Min path length {fewest_steps}")
-
-
+    if fewest_steps != 478:
+        raise Exception("Alas, fail!")
+    print(f"SUCCESS")
 
 
