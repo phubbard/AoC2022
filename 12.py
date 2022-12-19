@@ -307,13 +307,10 @@ if __name__ == '__main__':
         row, col = result
         height = map[row][col]
         if height == 0:
-            if path_length < fewest_steps:
-                fewest_steps = path_length
+            fewest_steps = min(fewest_steps, path_length)
     print(f"Min path length {fewest_steps}")
     if fewest_steps != 478:
         raise Exception("Alas, fail!")
-
     print(f"SUCCESS")
-
 
 
