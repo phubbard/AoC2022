@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 DATAFILE = './data/12.txt'
 
 # Whoa, this takes me back. Some reference pages
@@ -108,7 +110,7 @@ def to_adjacency(map):
     print(f"{num_cols} cols and {num_rows} rows == {num_cells}^2 in adjacency matrix")
     # Avert your eyes.
     zero_row = [0 for x in range(num_cells)]
-    adj_matrix = [zero_row for y in range(num_cells)]
+    adj_matrix = [deepcopy(zero_row) for y in range(num_cells)]
 
     for row_idx in range(num_cells):
         for col_idx in range(num_cells):
@@ -186,18 +188,13 @@ def rc_to_idx(entry, num_cols):
     return entry[0] * num_cols + entry[1]
 
 
-def idx_to_rc(idx, num_cols):
-    row, col = divmod(idx, num_cols)
-    return row, col
-
-
 if __name__ == '__main__':
     test_to_int()
-    start, end, map = parse_input(test_data.split('\n'))
-    for row in map:
-        print(row)
+    # start, end, map = parse_input(test_data.split('\n'))
+    # for row in map:
+    #     print(row)
 
-    # start, end, map = parse_input(open(DATAFILE, 'r'))
+    start, end, map = parse_input(open(DATAFILE, 'r'))
     a_map = to_adjacency(map)
     g = Graph(a_map)
     num_src_cols = len(map[0])
@@ -211,7 +208,9 @@ if __name__ == '__main__':
     idx = 0   # FIXME RTFM for the index, value trick
     fewest_steps = 999999
     for path_length in distances:
-        row, col = idx_to_rc(idx, num_src_cols)
+        row1, col1 = divmod(idx, num_src_cols)
+        result = row1, col1
+        row, col = result
         height = map[row][col]
         if height == 0:
             if path_length < fewest_steps:
