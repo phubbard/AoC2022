@@ -7,7 +7,8 @@ log = logging.getLogger()
 # Problem spec https://adventofcode.com/2022/day/13
 DATAFILE = "./data/13.txt"
 
-sample_data = """[1,1,3,1,1]
+sample_data = """
+[1,1,3,1,1]
 [1,1,5,1,1]
 
 [[1],[2,3,4]]
@@ -29,7 +30,8 @@ sample_data = """[1,1,3,1,1]
 [[]]
 
 [1,[2,[3,[4,[5,6,7]]]],8,9]
-[1,[2,[3,[4,[5,6,0]]]],8,9]"""
+[1,[2,[3,[4,[5,6,0]]]],8,9]
+"""
 
 sample_answers = [True, True, False, True, False, True, False, False]
 
@@ -86,6 +88,13 @@ class Reception:
         self.RECEPTION_LEFT  = left
         self.RECEPTION_RIGHT = right
 
+    def __str__(self):
+        rv = ""
+        rv += f"\n  pair -> index: {self.RECEPTION_INDEX}"
+        rv += f"\n           left: {self.RECEPTION_LEFT}"
+        rv += f"\n          right: {self.RECEPTION_RIGHT}"
+        return rv
+
 
 class Dataset:
     def __init__(self, reception_list):
@@ -94,9 +103,8 @@ class Dataset:
     def __str__(self):
         rv = "<<DATASET"
         for idx, reception in enumerate(self.DATASET_TUPLE):
-            rv += f"\n  pair {idx:02} -> index: {reception.RECEPTION_INDEX}"
-            rv += f"\n              left: {reception.RECEPTION_LEFT}"
-            rv += f"\n             right: {reception.RECEPTION_RIGHT}"
+            rv += str(reception)
+        rv += ">>"
         return rv
 
 
