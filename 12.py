@@ -259,6 +259,7 @@ class Grid:
 def rc_to_idx(entry, num_cols):
     return entry[0] * num_cols + entry[1]
 
+
 if True:
     log("Run test...")
     test_to_int()
@@ -290,8 +291,8 @@ if True:
 
 
 if True:
-    start, end, map = parse_input(test_data.split('\n'))
-    # start, end, map = parse_input(open(DATAFILE, 'r'))
+    # start, end, map = parse_input(test_data.split('\n'))
+    start, end, map = parse_input(open(DATAFILE, 'r'))
     a_map = to_adjacency(map)
     g = Graph(len(a_map[0]))
     g.graph = a_map
@@ -301,6 +302,15 @@ if True:
     log(f"PAULs dijkstra with end_idx:{end_idx} ...")
     distances = g.dijkstra(end_idx)
     print(f"{end_idx} to {start_idx} min distance {distances[start_idx]}")
+    fewest_steps = 999999
+    for idx, path_length in enumerate(distances):
+        row, col = divmod(idx, num_cols)
+        height = map[row][col]
+        if height == 0:
+            if path_length < fewest_steps:
+                fewest_steps = path_length
+    log(f"SOLUTION IS fewest_steps:{fewest_steps}")
+
 else:
     log(f"Paul commeted out.")
 
