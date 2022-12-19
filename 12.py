@@ -186,7 +186,7 @@ class Graph:
                         dist[v] > dist[u] + self.graph[u][v]):
                     dist[v] = dist[u] + self.graph[u][v]
 
-        self.printSolution(dist)
+        # self.printSolution(dist)
         return dist
 
 # This code is contributed by Divyanshu Mehta
@@ -265,7 +265,6 @@ if True:
     log("End test.")
 
 
-#
 if True:
     log(f"Parse input...")
     start_ordinate, end_ordinate, two_dee_array = parse_input(test_data.split('\n'))
@@ -273,14 +272,10 @@ if True:
     grid = Grid(two_dee_array)
     log(f"Get adjacency...")
     my_adjacency = grid.create_adjacency_matrix()
-    if True:
-        log(f"show adjacency...")
-        for idx, row in enumerate(my_adjacency):
-            log(f" {idx:02}: -> {row}")
 
     if True:
         log(f"Form Graph...")
-        my_graph = Graph(40)
+        my_graph = Graph(grid.GRID_INSTANCES)
         log(f"Set the Graph's adjacency...")
         my_graph.graph = my_adjacency
         log(f"Locate start and end instances...")
@@ -288,22 +283,16 @@ if True:
         ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
         log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
         log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
-        solution_array = my_graph.dijkstra(10)
+        solution_array = my_graph.dijkstra(starting_square.SQUARE_INSTANCE)
         log(f"Solutions are -> {solution_array}")
+        log(f"Key solution is -> {solution_array[ending_square.SQUARE_INSTANCE]}")
         log(f"Profit!")
 
 
-if True:
+if False:
     start, end, map = parse_input(test_data.split('\n'))
     # start, end, map = parse_input(open(DATAFILE, 'r'))
     a_map = to_adjacency(map)
-
-    if True:
-        log(f"show PAULs adjacency...")
-        for idx, row in enumerate(a_map):
-            log(f" {idx:02}: -> {row}")
-
-    log(f"PAULs form graph with param:{len(a_map[0])}")
     g = Graph(len(a_map[0]))
     g.graph = a_map
     num_cols = len(map[0])
@@ -312,10 +301,12 @@ if True:
     log(f"PAULs dijkstra with start:{start_idx} ...")
     distances = g.dijkstra(start_idx)
     print(f"{start_idx} to {end_idx} min distance {distances[end_idx]}")
+else:
+    log(f"Paul commeted out.")
 
 
 
-if True:
+if False:
     for whose, which in (('PAULS', a_map), ('BRADS', my_adjacency), ):
         log(f"TYPEOF:  {whose}:{type(which)}")
         log(f"SIZE:    {whose}:{len(which)}")
