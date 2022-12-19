@@ -1,8 +1,6 @@
 
 import logging
 
-DATAFILE = './data/13.txt'
-
 logging.basicConfig(level=logging.DEBUG, format='%(pathname)s(%(lineno)s): %(levelname)s %(message)s')
 log = logging.getLogger()
 
@@ -36,7 +34,7 @@ sample_data = """[1,1,3,1,1]
 sample_answers = [True, True, False, True, False, True, False, False]
 
 
-def is_list(item:str) -> bool:
+def is_list(item: str) -> bool:
     # TODO verify that this suffices!
     return not item.isnumeric()
 
@@ -119,28 +117,6 @@ def parse_input(data_lines):
     return Dataset(raw_receptions)
 
 
-    row_idx = 0
-    for line in data_lines:
-        if len(line) == 0:
-            continue
-
-        elevation_map.append([])
-        col_idx = 0
-        for cell in line:
-            if cell == 'S':
-                    start = (row_idx, col_idx, )
-                    elevation_map[row_idx].append(0)
-            elif cell == 'E':
-                    end = (row_idx, col_idx, )
-                    elevation_map[row_idx].append(to_int('z'))
-            else:
-                    elevation_map[row_idx].append(to_int(cell))
-            col_idx += 1
-        row_idx += 1
-
-    return start, end, elevation_map
-
-
 if __name__ == '__main__':
     log.info("Beginning parse...")
     if True:
@@ -154,3 +130,4 @@ if __name__ == '__main__':
     else:
         log.info("Show tuples suppressed.")
 
+    in_order = False
