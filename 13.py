@@ -30,3 +30,25 @@ sample_data = """
 
 sample_answers = [True, True, False, True, False, True, False, False]
 
+
+def is_list(item:str) -> bool:
+    # TODO verify that this suffices!
+    return not item.isnumeric()
+
+
+def compare_pair(left:str, right:str) -> bool:
+    # Returns true if in correct order, false if wrong order, None if undecidable
+    if left.isnumeric() and right.isnumeric():
+        if int(left) < int(right):
+            return True
+        if int(right) > int(left):
+            return False
+        # They're equal - proceed
+        # TODO
+    if is_list(left) and is_list(right):
+        # TODO pairwise compare with rules about shorter list as per doc
+
+    if left.isnumeric() and is_list(right):
+        return compare_pair([left], right)
+
+
