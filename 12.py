@@ -234,7 +234,7 @@ class Grid:
         to_square   = self.GRID_SQUARES_BY_INSTANCE[to_instance]
 
         if from_square == to_square: return False
-        if from_square.SQUARE_ELEVATION + 1 < to_square.SQUARE_ELEVATION: return False
+        if to_square.SQUARE_ELEVATION + 1 < from_square.SQUARE_ELEVATION: return False
 
         if abs(from_square.SQUARE_X - to_square.SQUARE_X) > 1: return False
         if abs(from_square.SQUARE_Y - to_square.SQUARE_Y) > 1: return False
@@ -283,13 +283,13 @@ if True:
         ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
         log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
         log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
-        solution_array = my_graph.dijkstra(starting_square.SQUARE_INSTANCE)
+        solution_array = my_graph.dijkstra(ending_square.SQUARE_INSTANCE)
         log(f"Solutions are -> {solution_array}")
-        log(f"Key solution is -> {solution_array[ending_square.SQUARE_INSTANCE]}")
+        log(f"Key solution is -> {solution_array[starting_square.SQUARE_INSTANCE]}")
         log(f"Profit!")
 
 
-if False:
+if True:
     start, end, map = parse_input(test_data.split('\n'))
     # start, end, map = parse_input(open(DATAFILE, 'r'))
     a_map = to_adjacency(map)
