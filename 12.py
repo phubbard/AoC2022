@@ -157,7 +157,7 @@ class Graph:
     # Function that implements Dijkstra's single source
     # shortest path algorithm for a graph represented
     # using adjacency matrix representation
-	def dijkstra(self, src, dest):
+    def dijkstra(self, src):
 
         dist = [1e7] * self.V
         dist[src] = 0
@@ -187,9 +187,7 @@ class Graph:
         # self.printSolution(dist)
         return dist
 
-
 # This code is contributed by Divyanshu Mehta
-
 
 #  END
 #
@@ -260,7 +258,7 @@ def rc_to_idx(entry, num_cols):
     return entry[0] * num_cols + entry[1]
 
 
-if __name__ == '__main__':
+if False:
     test_to_int()
     # start, end, map = parse_input(test_data.split('\n'))
     start, end, map = parse_input(open(DATAFILE, 'r'))
@@ -275,7 +273,7 @@ if __name__ == '__main__':
 
 
 
-if __name__ == '__main__':
+if True:
     log("Run test...")
     test_to_int()
     log(f"Parse input...")
@@ -299,7 +297,8 @@ if __name__ == '__main__':
         ending_square   = grid.GRID_SQUARES_BY_ORDINATE[end_ordinate[0]][end_ordinate[1]]
         log(f"  The start is instance -> {starting_square.SQUARE_INSTANCE}")
         log(f"  The end   is instance -> {ending_square.SQUARE_INSTANCE}")
-        graph.dijkstra(starting_square.SQUARE_INSTANCE, ending_square.SQUARE_INSTANCE)
+        solution_array = graph.dijkstra(starting_square.SQUARE_INSTANCE)
+        log(f"Solutions are -> {solution_array}")
         log(f"Profit!")
    
 
