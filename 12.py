@@ -261,12 +261,6 @@ def rc_to_idx(entry, num_cols):
 
 
 if True:
-    log("Run test...")
-    test_to_int()
-    log("End test.")
-
-
-if True:
     log(f"Parse input...")
     start_ordinate, end_ordinate, two_dee_array = parse_input(test_data.split('\n'))
     log(f"Form the grid...")
@@ -290,7 +284,8 @@ if True:
         log(f"Profit!")
 
 
-if True:
+if __name__ == '__main__':
+    test_to_int()
     # start, end, map = parse_input(test_data.split('\n'))
     start, end, map = parse_input(open(DATAFILE, 'r'))
     a_map = to_adjacency(map)
@@ -315,27 +310,4 @@ else:
     log(f"Paul commeted out.")
 
 
-
-if False:
-    for whose, which in (('PAULS', a_map), ('BRADS', my_adjacency), ):
-        log(f"TYPEOF:  {whose}:{type(which)}")
-        log(f"SIZE:    {whose}:{len(which)}")
-        log(f"TYPEOFi: {whose}:{type(which[0])}")
-        log(f"SIZEi:   {whose}:{len(which[0])}")
-        log(f"ELEMS:   {whose}:{which[0][0]}")
-        log(f"ELEMS:   {whose}:{which[0][1]}")
-        log(f"ELEMS:   {whose}:{which[0][2]}")
-        log(f"ELEMS:   {whose}:{which[0][3]}")
-        log(f"ELEMS:   {whose}:{which[1][0]}")
-        log(f"ELEMS:   {whose}:{which[1][1]}")
-        log(f"ELEMS:   {whose}:{which[1][2]}")
-        log(f"ELEMS:   {whose}:{which[1][3]}")
-        log(f"ELEMS:   {whose}:{which[2][0]}")
-        log(f"ELEMS:   {whose}:{which[2][1]}")
-        log(f"ELEMS:   {whose}:{which[2][2]}")
-        log(f"ELEMS:   {whose}:{which[2][3]}")
-    for x in range(40):
-        for y in range(40):
-            if a_map[x][y] == my_adjacency[x][y]: continue
-            raise Exception(f"BAD AT {x} {y}")
 
