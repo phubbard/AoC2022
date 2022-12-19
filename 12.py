@@ -82,7 +82,7 @@ def is_adjacent(source: int, dest: int, elevation_map) -> int:
 
     if source == dest:
         return 0  # Zeros on the diagonal by definition
-    if (dest_height - source_height) > 1:
+    if (source_height - dest_height) > 1:
         return 0
 
     if source_row == dest_row:
@@ -298,9 +298,9 @@ if True:
     num_cols = len(map[0])
     start_idx = rc_to_idx(start, num_cols)
     end_idx = rc_to_idx(end, num_cols)
-    log(f"PAULs dijkstra with start:{start_idx} ...")
-    distances = g.dijkstra(start_idx)
-    print(f"{start_idx} to {end_idx} min distance {distances[end_idx]}")
+    log(f"PAULs dijkstra with end_idx:{end_idx} ...")
+    distances = g.dijkstra(end_idx)
+    print(f"{end_idx} to {start_idx} min distance {distances[start_idx]}")
 else:
     log(f"Paul commeted out.")
 
