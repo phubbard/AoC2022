@@ -309,5 +309,11 @@ if True:
         solution_array = graph.dijkstra(starting_square.SQUARE_INSTANCE)
         log(f"Solutions are -> {solution_array}")
         log(f"Profit!")
-   
+
+    if True:
+        for whose, which in (('PAULS', a_map), ('BRADS', my_adjacency), ):
+            log(f"TYPEOF:  {whose}:{type(which)}")
+            log(f"SIZE:    {whose}:{len(which)}")
+            log(f"TYPEOFi: {whose}:{type(which[0])}")
+            log(f"SIZEi:   {whose}:{len(which[0])}")
 
