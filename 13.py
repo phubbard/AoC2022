@@ -1,4 +1,9 @@
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='%(pathname)s(%(lineno)s): %(levelname)s %(message)s')
+log = logging.getLogger()
+
 # Problem spec https://adventofcode.com/2022/day/13
 DATAFILE = "./data/13.txt"
 
@@ -36,7 +41,12 @@ def is_list(item:str) -> bool:
     return not item.isnumeric()
 
 
-def compare_pair(left:str, right:str) -> bool:
+def compare_lists(left, right):
+    assert is_list(left) and is_list(right)
+
+
+def compare_pair(left, right) -> bool:
+    log.debug("here we go")
     # Returns true if in correct order, false if wrong order, None if undecidable
     if left.isnumeric() and right.isnumeric():
         if int(left) < int(right):
@@ -47,8 +57,12 @@ def compare_pair(left:str, right:str) -> bool:
         # TODO
     if is_list(left) and is_list(right):
         # TODO pairwise compare with rules about shorter list as per doc
-
+        pass
     if left.isnumeric() and is_list(right):
         return compare_pair([left], right)
+    if is_list(left) and right.isnumeric():
+        return compare_pair(left, [right])
 
 
+if __name__ == '__main__':
+    log.info("here we go")
