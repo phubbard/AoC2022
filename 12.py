@@ -257,32 +257,41 @@ class Grid:
 def rc_to_idx(entry, num_cols):
     return entry[0] * num_cols + entry[1]
 
-
-if False:
+if True:
+    log("Run test...")
     test_to_int()
-    # start, end, map = parse_input(test_data.split('\n'))
-    start, end, map = parse_input(open(DATAFILE, 'r'))
+    log("End test.")
+
+
+if True:
+    start, end, map = parse_input(test_data.split('\n'))
+    # start, end, map = parse_input(open(DATAFILE, 'r'))
     a_map = to_adjacency(map)
+
+    if True:
+        log(f"show PAULs adjacency...")
+        for idx, row in enumerate(a_map):
+            log(f" {idx:02}: -> {row}")
+
+    log(f"PAULs form graph with param:{len(a_map[0])}")
     g = Graph(len(a_map[0]))
     g.graph = a_map
     num_cols = len(map[0])
     start_idx = rc_to_idx(start, num_cols)
     end_idx = rc_to_idx(end, num_cols)
+    log(f"PAULs dijkstra with start:{start_idx} ...")
     distances = g.dijkstra(start_idx)
     print(f"{start_idx} to {end_idx} min distance {distances[end_idx]}")
 
 
-
 if True:
-    log("Run test...")
-    test_to_int()
     log(f"Parse input...")
     start_ordinate, end_ordinate, two_dee_array = parse_input(test_data.split('\n'))
-    log(f"Form the grid...")
+    log(f"Form the grid with param:{len(a_map[0])} ...")
     grid = Grid(two_dee_array)
     log(f"Get adjacency...")
     my_adjacency = grid.create_adjacency_matrix()
-    if False:
+    if True:
         log(f"show adjacency...")
         for idx, row in enumerate(my_adjacency):
             log(f" {idx:02}: -> {row}")
