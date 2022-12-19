@@ -300,9 +300,8 @@ if __name__ == '__main__':
     print(f"Double check - {distances[start_idx]}")
     # We now have an array of vertex, distance pairs, starting from the end index. Now we need to augment that
     # with elevation data.
-    idx = 0   # FIXME RTFM for the index, value trick
     fewest_steps = 999999
-    for path_length in distances:
+    for idx, path_length in enumerate(distances):
         row1, col1 = divmod(idx, num_src_cols)
         result = row1, col1
         row, col = result
@@ -310,9 +309,11 @@ if __name__ == '__main__':
         if height == 0:
             if path_length < fewest_steps:
                 fewest_steps = path_length
-        idx += 1
     print(f"Min path length {fewest_steps}")
+    if fewest_steps != 478:
+        raise Exception("Alas, fail!")
 
+    print(f"SUCCESS")
 
 
 
