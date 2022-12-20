@@ -75,8 +75,11 @@ def compare_lists(left, right, depth):
 
 
 def compare_lists_outer(left, right):
-    rc = compare_lists(left, right, 0)
+    depth = 0
+    rc = compare_lists(left, right, depth)
     if rc is None:
+        log.debug(f"{depth * '  '} - !!! Left side ran out of items, so inputs are in the right order")
+
         return True
     return rc
 
@@ -145,7 +148,7 @@ def parse_input(data_lines):
 
 if __name__ == '__main__':
     log.info("Beginning parse...")
-    if False:
+    if True:
         dataset = parse_input(sample_data)
     else:
         dataset = parse_input(open(DATAFILE, 'r').read())
