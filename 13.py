@@ -134,7 +134,7 @@ def parse_input(data_lines):
 
 if __name__ == '__main__':
     log.info("Beginning parse...")
-    if True:
+    if False:
         dataset = parse_input(sample_data)
     else:
         dataset = parse_input(open(DATAFILE, 'r').read())
@@ -147,10 +147,9 @@ if __name__ == '__main__':
 
     running_sum_of_ordered_pairs = 0
     for idx, reception in enumerate(dataset.DATASET_TUPLE):
-        expected = sample_answers[idx]
         log.info(f" == Pair {reception.RECEPTION_INDEX} ==")
         result = compare_lists_outer(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
-        log.info(f" Index:{reception.RECEPTION_INDEX:02} END -> {result} expecting {expected}")
+        log.info(f" Index:{reception.RECEPTION_INDEX:02} END -> {result}")
         log.info(f"")
         if result:
             running_sum_of_ordered_pairs += reception.RECEPTION_INDEX
