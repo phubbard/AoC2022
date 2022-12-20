@@ -1,4 +1,5 @@
 import copy
+import functools
 import json
 import logging
 
@@ -207,13 +208,19 @@ def compare_values_inner(left_value, right_value, depth):
 
 
 def compare_values_outer_brad(left, right):
-    rc = compare_values_inner(left, right, 0)
+    rc = compare_values_inner(copy.deepcopy(left),
+                              copy.deepcopy(right), 0)
 
     if False: pass
     elif rc == INPUTS_IN_RIGHT_ORDER:     return True
     elif rc == INPUTS_NOT_IN_RIGHT_ORDER: return False
     else:  raise Exception("Grievious injury indeed")
 
+def cmp_function(a, b):
+    rc = compare_values_outer_brad(a, b)
+    if rc == INPUTS_IN_RIGHT_ORDER:       return -1
+    elif rc == INPUTS_NOT_IN_RIGHT_ORDER: return  1
+    else:                                 return  0
 
 def parse_input(data_lines):
 
@@ -232,14 +239,12 @@ def parse_input(data_lines):
 
 if __name__ == '__main__':
     log.info("Beginning parse...")
-    if True:
+    if False:
         dataset = parse_input(sample_data)
-        dataset.dump_to("regurgitate-13-sample.txt")
     else:
         dataset = parse_input(open(DATAFILE, 'r').read())
-        dataset.dump_to("regurgitate-13-datafile.txt")
 
-    if False:
+    if True:
         log.info("Showing read tuples...")
         log.info(str(dataset))
     else:
@@ -259,3 +264,31 @@ if __name__ == '__main__':
     log.info(f"\nSum of indices is {running_sum_of_ordered_pairs}")
 
     log.info(f"Last official run emitted correct answer -> Sum of indices is 6046.")
+
+    two_sentinel = [[2]]
+    six_sentinel = [[6]]
+
+    all_packets = [two_sentinel, six_sentinel]
+
+    for reception in dataset.DATASET_TUPLE:
+        all_packets.append(reception.RECEPTION_LEFT)
+        all_packets.append(reception.RECEPTION_RIGHT)
+
+    for idx, packet in enumerate(all_packets):
+        log.info(f" BEFORE {idx:03}  {packet}")
+
+    sorted_packets = sorted(all_packets, key=functools.cmp_to_key(cmp_function))
+
+    two_position = -1
+    six_position = -1
+
+    for idx, packet in enumerate(sorted_packets, start=1):
+        if packet == two_sentinel: two_position = idx
+        if packet == six_sentinel: six_position = idx
+
+        log.info(f" AFTER  {idx:03}  {packet}")
+
+    log.info(f"Product of sentinels is {two_position * six_position}")
+    log.info("RESULT CORRECT -> INFO Product of sentinels is 21423")
+
+
