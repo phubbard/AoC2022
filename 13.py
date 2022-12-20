@@ -145,11 +145,15 @@ if __name__ == '__main__':
     else:
         log.info("Show tuples suppressed.")
 
+    running_sum_of_ordered_pairs = 0
     for idx, reception in enumerate(dataset.DATASET_TUPLE):
         expected = sample_answers[idx]
         log.info(f" == Pair {reception.RECEPTION_INDEX} ==")
         result = compare_lists_outer(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
         log.info(f" Index:{reception.RECEPTION_INDEX:02} END -> {result} expecting {expected}")
         log.info(f"")
+        if result:
+            running_sum_of_ordered_pairs += reception.RECEPTION_INDEX
+    log.info(f"\nSum of indices is {running_sum_of_ordered_pairs}")
 
     in_order = False
