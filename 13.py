@@ -45,6 +45,7 @@ def compare_lists(left, right, depth):
     # True if correct order, false if wrong, None if we cannot decide.
     assert is_list(left) and is_list(right)
 
+    idx = 0
     for idx, left_value in enumerate(left):
         if idx >= len(right):
             log.debug(f"{depth * '  '} - Right side ran out of items, so inputs are not in the right order")
