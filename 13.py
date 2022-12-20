@@ -232,7 +232,7 @@ def parse_input(data_lines):
 
 if __name__ == '__main__':
     log.info("Beginning parse...")
-    if False:
+    if True:
         dataset = parse_input(sample_data)
         dataset.dump_to("regurgitate-13-sample.txt")
     else:
