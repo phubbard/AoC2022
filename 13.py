@@ -63,7 +63,6 @@ def compare_lists(left, right):
 
 
 def compare_pair(left, right):
-    log.debug("here we go")
     # Returns true if in correct order, false if wrong order, None if undecidable
     if (not is_list(left)) and not(is_list(right)):
         if left < right:
