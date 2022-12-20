@@ -1,7 +1,7 @@
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG, format='%(pathname)s(%(lineno)s): %(levelname)s %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(message)s')
 log = logging.getLogger()
 
 # Problem spec https://adventofcode.com/2022/day/13
@@ -155,4 +155,5 @@ if __name__ == '__main__':
             running_sum_of_ordered_pairs += reception.RECEPTION_INDEX
     log.info(f"\nSum of indices is {running_sum_of_ordered_pairs}")
 
+    log.info(f"Sum of indices is 5513 from above.")
     in_order = False
