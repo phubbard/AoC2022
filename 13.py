@@ -36,6 +36,26 @@ sample_data = """
 
 sample_answers = [True, True, False, True, False, True, False, False]
 
+sample_data_part_twp = """
+[]
+[[]]
+[[[]]]
+[1,1,3,1,1]
+[1,1,5,1,1]
+[[1],[2,3,4]]
+[1,[2,[3,[4,[5,6,0]]]],8,9]
+[1,[2,[3,[4,[5,6,7]]]],8,9]
+[[1],4]
+[[2]]
+[3]
+[[4,4],4,4]
+[[4,4],4,4,4]
+[[6]]
+[7,7,7]
+[7,7,7,7]
+[[8,7,6]]
+[9]
+"""
 
 def is_list(item) -> bool:
     return type(item) == list
