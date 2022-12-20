@@ -1,4 +1,5 @@
 
+import json
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(message)s')
@@ -38,6 +39,16 @@ sample_answers = [True, True, False, True, False, True, False, False]
 
 def is_list(item) -> bool:
     return type(item) == list
+
+
+
+def string_to_native(string_value):
+    eval_answer = eval(string_value)
+    json_answer = json.loads(string_value)
+    if eval_answer != json_answer:
+        raise Exception(f"MISMATCH ghiven -> {string_value}\n  eval -> {eval_answer}\n  json -> {json_answer}")
+    return json_answer
+
 
 
 def compare_lists(left, right, depth):
@@ -92,8 +103,8 @@ def compare_pair(left, right, depth):
 class Reception:
     def __init__(self, indx, left, right):
         self.RECEPTION_INDEX = indx
-        self.RECEPTION_LEFT  = eval(left)
-        self.RECEPTION_RIGHT = eval(right)
+        self.RECEPTION_LEFT  = string_to_native(left)
+        self.RECEPTION_RIGHT = string_to_native(right)
 
     def __str__(self):
         rv = ""
@@ -156,4 +167,3 @@ if __name__ == '__main__':
     log.info(f"\nSum of indices is {running_sum_of_ordered_pairs}")
 
     log.info(f"Sum of indices is 5513 from above.")
-    in_order = False
