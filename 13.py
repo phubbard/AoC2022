@@ -44,24 +44,29 @@ def compare_lists(left, right, depth):
     log.debug(f"{depth * '  '} - Compare {left} vs {right}")
     # True if correct order, false if wrong, None if we cannot decide.
     assert is_list(left) and is_list(right)
-    left_longer = len(left) > len(right)
-    if not left_longer:
-        for idx, left_value in enumerate(left):
-            rc = compare_pair(left_value, right[idx], depth)
-            if rc is None:
-                continue
-            # The pair comparison returned a definite answer - we're done
-            return rc
-        # We've walked the left list and exhausted the right list.
-        log.debug(f"{depth * '  '} - Left side ran out of items, so inputs are in the right order")
-        return True
-    # Left is longer
-    for idx, right_value in enumerate(right):
-        rc = compare_pair(left[idx], right_value, depth)
+
+    for idx, left_value in enumerate(left):
+        if idx > len(right):
+            log.debug(f"{depth * '  '} - Right side ran out of items, so inputs are not in the right order")
+            return False
+        rc = compare_pair(left_value, right[idx], depth)
         if rc is None:
             continue
-        return rc
-    return False
+        else:
+            # The pair comparison returned a definite answer - we're done
+            return rc
+    if idx + 1 < len(right):
+        log.debug(f"{depth * '  '} - Left side ran out of items, so inputs are in the right order")
+        return True
+
+    return None
+
+
+def compare_lists_outer(left, right):
+    rc = compare_lists(left, right, 0)
+    if rc is None:
+        return True
+    return rc
 
 
 def compare_pair(left, right, depth):
@@ -71,7 +76,7 @@ def compare_pair(left, right, depth):
         if left < right:
             log.debug(f"{depth * '  '} - Left side is smaller, so inputs are in the right order")
             return True
-        if right > left:
+        if right < left:
             log.debug(f"{depth * '  '} - Right side is smaller, so inputs are not in the right order")
             return False
         # They're equal - continue
@@ -141,7 +146,9 @@ if __name__ == '__main__':
 
     for idx, reception in enumerate(dataset.DATASET_TUPLE):
         expected = sample_answers[idx]
-        result = compare_lists(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT, 0)
-        log.info(f" Index:{reception.RECEPTION_INDEX:02} -> {result} expecting {expected}")
+        log.info(f" == Pair {reception.RECEPTION_INDEX} ==")
+        result = compare_lists_outer(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
+        log.info(f" Index:{reception.RECEPTION_INDEX:02} END -> {result} expecting {expected}")
+        log.info(f"")
 
     in_order = False
