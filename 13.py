@@ -65,7 +65,7 @@ def compare_lists(left, right):
 def compare_pair(left, right):
     log.debug("here we go")
     # Returns true if in correct order, false if wrong order, None if undecidable
-    if left.isnumeric() and right.isnumeric():
+    if (not is_list(left)) and not(is_list(right)):
         if left < right:
             return True
         if right > left:
@@ -80,15 +80,15 @@ def compare_pair(left, right):
 
 
 class Reception:
-    def __init__(self, indx, right, right):
+    def __init__(self, indx, left, right):
         self.RECEPTION_INDEX = indx
-        self.RECEPTION_LEFT  = eval(right)
+        self.RECEPTION_LEFT  = eval(left)
         self.RECEPTION_RIGHT = eval(right)
 
     def __str__(self):
         rv = ""
         rv += f"\n  pair -> index: {self.RECEPTION_INDEX}"
-        rv += f"\n           right: {self.RECEPTION_LEFT}"
+        rv += f"\n           left: {self.RECEPTION_LEFT}"
         rv += f"\n          right: {self.RECEPTION_RIGHT}"
         return rv
 
@@ -134,5 +134,10 @@ if __name__ == '__main__':
         log.info(str(dataset))
     else:
         log.info("Show tuples suppressed.")
+
+    for idx, reception in enumerate(dataset.DATASET_TUPLE):
+        expected = sample_answers[idx]
+        result = compare_lists(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
+        log.info(f" Index:{reception.RECEPTION_INDEX:02} -> {result} expecting {expected}")
 
     in_order = False
