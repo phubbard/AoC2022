@@ -40,35 +40,39 @@ def is_list(item) -> bool:
     return type(item) == list
 
 
-def compare_lists(left, right):
+def compare_lists(left, right, depth):
+    log.debug(f"{depth * '  '} - Compare {left} vs {right}")
     # True if correct order, false if wrong, None if we cannot decide.
     assert is_list(left) and is_list(right)
     left_longer = len(left) > len(right)
     if not left_longer:
         for idx, left_value in enumerate(left):
-            rc = compare_pair(left_value, right[idx])
+            rc = compare_pair(left_value, right[idx], depth)
             if rc is None:
                 continue
             # The pair comparison returned a definite answer - we're done
             return rc
         # We've walked the left list and exhausted the right list.
+        log.debug(f"{depth * '  '} - Left side ran out of items, so inputs are in the right order")
         return True
     # Left is longer
     for idx, right_value in enumerate(right):
-        rc = compare_pair(left[idx], right_value)
+        rc = compare_pair(left[idx], right_value, depth)
         if rc is None:
             continue
         return rc
     return False
 
 
-def compare_pair(left, right):
-    log.debug("here we go")
+def compare_pair(left, right, depth):
+    log.debug(f"{depth * '  '} - Compare {left} vs {right}")
     # Returns true if in correct order, false if wrong order, None if undecidable
-    if (not is_list(left)) and not(is_list(right)):
+    if (not is_list(left)) and (not is_list(right)):
         if left < right:
+            log.debug(f"{depth * '  '} - Left side is smaller, so inputs are in the right order")
             return True
         if right > left:
+            log.debug(f"{depth * '  '} - Right side is smaller, so inputs are not in the right order")
             return False
         # They're equal - continue
         return None
@@ -76,7 +80,7 @@ def compare_pair(left, right):
     left  = left  if is_list(left)  else [left]
     right = right if is_list(right) else [right]
 
-    return compare_lists(left, right)
+    return compare_lists(left, right, depth + 1)
 
 
 class Reception:
@@ -137,7 +141,7 @@ if __name__ == '__main__':
 
     for idx, reception in enumerate(dataset.DATASET_TUPLE):
         expected = sample_answers[idx]
-        result = compare_lists(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
+        result = compare_lists(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT, 0)
         log.info(f" Index:{reception.RECEPTION_INDEX:02} -> {result} expecting {expected}")
 
     in_order = False
