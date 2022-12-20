@@ -7,7 +7,8 @@ log = logging.getLogger()
 # Problem spec https://adventofcode.com/2022/day/13
 DATAFILE = "./data/13.txt"
 
-sample_data = """[1,1,3,1,1]
+sample_data = """
+[1,1,3,1,1]
 [1,1,5,1,1]
 
 [[1],[2,3,4]]
@@ -29,14 +30,14 @@ sample_data = """[1,1,3,1,1]
 [[]]
 
 [1,[2,[3,[4,[5,6,7]]]],8,9]
-[1,[2,[3,[4,[5,6,0]]]],8,9]"""
+[1,[2,[3,[4,[5,6,0]]]],8,9]
+"""
 
 sample_answers = [True, True, False, True, False, True, False, False]
 
 
-def is_list(item: str) -> bool:
-    # TODO verify that this suffices!
-    return not item.isnumeric()
+def is_list(item) -> bool:
+    return type(item) == list
 
 
 def compare_lists(left, right):
@@ -44,8 +45,8 @@ def compare_lists(left, right):
     assert is_list(left) and is_list(right)
     left_longer = len(left) > len(right)
     if not left_longer:
-        for idx, value in enumerate(left):
-            rc = compare_pair(value, right[idx])
+        for idx, left_value in enumerate(left):
+            rc = compare_pair(left_value, right[idx])
             if rc is None:
                 continue
             # The pair comparison returned a definite answer - we're done
@@ -53,8 +54,8 @@ def compare_lists(left, right):
         # We've walked the left list and exhausted the right list.
         return True
     # Left is longer
-    for idx, value in enumerate(right):
-        rc = compare_pair(left[idx], right)
+    for idx, right_value in enumerate(right):
+        rc = compare_pair(left[idx], right_value)
         if rc is None:
             continue
         return rc
@@ -64,27 +65,32 @@ def compare_lists(left, right):
 def compare_pair(left, right):
     log.debug("here we go")
     # Returns true if in correct order, false if wrong order, None if undecidable
-    if left.isnumeric() and right.isnumeric():
-        if int(left) < int(right):
+    if (not is_list(left)) and not(is_list(right)):
+        if left < right:
             return True
-        if int(right) > int(left):
+        if right > left:
             return False
         # They're equal - continue
         return None
-    if is_list(left) and is_list(right):
-        # TODO pairwise compare with rules about shorter list as per doc
-        pass
-    if left.isnumeric() and is_list(right):
-        return compare_pair([left], right)
-    if is_list(left) and right.isnumeric():
-        return compare_pair(left, [right])
+
+    left  = left  if is_list(left)  else [left]
+    right = right if is_list(right) else [right]
+
+    return compare_lists(left, right)
 
 
 class Reception:
     def __init__(self, indx, left, right):
         self.RECEPTION_INDEX = indx
-        self.RECEPTION_LEFT  = left
-        self.RECEPTION_RIGHT = right
+        self.RECEPTION_LEFT  = eval(left)
+        self.RECEPTION_RIGHT = eval(right)
+
+    def __str__(self):
+        rv = ""
+        rv += f"\n  pair -> index: {self.RECEPTION_INDEX}"
+        rv += f"\n           left: {self.RECEPTION_LEFT}"
+        rv += f"\n          right: {self.RECEPTION_RIGHT}"
+        return rv
 
 
 class Dataset:
@@ -94,9 +100,8 @@ class Dataset:
     def __str__(self):
         rv = "<<DATASET"
         for idx, reception in enumerate(self.DATASET_TUPLE):
-            rv += f"\n  pair {idx:02} -> index: {reception.RECEPTION_INDEX}"
-            rv += f"\n              left: {reception.RECEPTION_LEFT}"
-            rv += f"\n             right: {reception.RECEPTION_RIGHT}"
+            rv += str(reception)
+        rv += "\n>>"
         return rv
 
 
@@ -129,5 +134,10 @@ if __name__ == '__main__':
         log.info(str(dataset))
     else:
         log.info("Show tuples suppressed.")
+
+    for idx, reception in enumerate(dataset.DATASET_TUPLE):
+        expected = sample_answers[idx]
+        result = compare_lists(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
+        log.info(f" Index:{reception.RECEPTION_INDEX:02} -> {result} expecting {expected}")
 
     in_order = False
