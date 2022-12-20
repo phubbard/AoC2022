@@ -1,4 +1,4 @@
-
+import copy
 import json
 import logging
 
@@ -142,6 +142,58 @@ class Dataset:
                 next_string = reception.as_input_file_string()
                 file.write(next_string)
 
+#
+INPUTS_IN_RIGHT_ORDER     = 1
+INPUTS_NOT_IN_RIGHT_ORDER = 2
+INPUTS_ARE_SAME           = 3
+
+def is_integer(value): return type(value) == int
+def is_list(value):    return type(value) == list
+
+def compare_values_inner(left_value, right_value, depth):
+    inner_depth = depth + 2
+
+    if False: pass
+
+    elif is_integer(left_value) and is_integer(right_value):
+        if False: pass
+        elif left_value < right_value: return INPUTS_IN_RIGHT_ORDER
+        elif left_value > right_value: return INPUTS_NOT_IN_RIGHT_ORDER
+        else:                          return INPUTS_ARE_SAME
+
+    elif is_list(left_value) and is_list(right_value):
+        while True:
+            left_list_is_empty  = len(left_value)  == 0
+            right_list_is_empty = len(right_value) == 0
+            if False: pass
+            elif left_list_is_empty and right_list_is_empty: return INPUTS_ARE_SAME
+            elif left_list_is_empty:                         return INPUTS_IN_RIGHT_ORDER
+            elif right_list_is_empty:                        return INPUTS_NOT_IN_RIGHT_ORDER
+            else:
+                # Both lists have at least one: pop first of each
+                left_list_first  = left_value.pop(0)
+                right_list_first = right_value.pop(0)
+                sub_check = compare_values_inner(left_list_first, right_list_first, inner_depth)
+                if sub_check in {INPUTS_IN_RIGHT_ORDER, INPUTS_NOT_IN_RIGHT_ORDER}: return sub_check
+
+    elif is_integer(left_value) and is_list(right_value):
+        return compare_values_inner([left_value], right_value, inner_depth)
+        
+    elif is_list(left_value) and is_integer(right_value):
+        return compare_values_inner(left_value, [right_value], inner_depth)
+
+    else:
+        raise Exception("Unexpected, and most unfortunate")
+
+
+def compare_values_outer_brad(left, right):
+    rc = compare_values_inner(left, right, 0)
+
+    if False: pass
+    elif rc == INPUTS_IN_RIGHT_ORDER:     return True
+    elif rc == INPUTS_NOT_IN_RIGHT_ORDER: return False
+    else:  raise Exception("Grievious injury indeed")
+
 
 def parse_input(data_lines):
 
@@ -152,8 +204,6 @@ def parse_input(data_lines):
     for grouping in groupings:
         split_grouping = grouping.split("\n")
         split_length = len(split_grouping)
-        for idx, sting in enumerate(split_grouping):
-            log.info(f"DEBUG: idx:{idx} -> {sting}")
         if split_length != 2:
             raise Exception(f"Malformed grouping with split_length:{split_length} --> {grouping}")
         raw_receptions.append(Reception(len(raw_receptions) + 1, split_grouping[0], split_grouping[1], ))
@@ -169,7 +219,7 @@ if __name__ == '__main__':
         dataset = parse_input(open(DATAFILE, 'r').read())
         dataset.dump_to("regurgitate-13-datafile.txt")
 
-    if True:
+    if False:
         log.info("Showing read tuples...")
         log.info(str(dataset))
     else:
@@ -178,11 +228,14 @@ if __name__ == '__main__':
     running_sum_of_ordered_pairs = 0
     for idx, reception in enumerate(dataset.DATASET_TUPLE):
         log.info(f" == Pair {reception.RECEPTION_INDEX} ==")
-        result = compare_lists_outer(reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
-        log.info(f" Index:{reception.RECEPTION_INDEX:02} END -> {result}")
+        old_result = compare_lists_outer       (reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
+        new_result = compare_values_outer_brad (reception.RECEPTION_LEFT, reception.RECEPTION_RIGHT)
         log.info(f"")
-        if result:
+        if old_result != new_result:
+            pass # raise Exception(f"old_result:{old_result} != new_result:{new_result}")
+        if new_result:
             running_sum_of_ordered_pairs += reception.RECEPTION_INDEX
+        log.info(f" Index:{reception.RECEPTION_INDEX:02} END")
     log.info(f"\nSum of indices is {running_sum_of_ordered_pairs}")
 
-    log.info(f"Sum of indices is 5513 from above.")
+    log.info(f"Last official run emitted correct answer -> Sum of indices is 6046.")
