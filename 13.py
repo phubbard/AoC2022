@@ -67,9 +67,10 @@ def compare_lists(left, right, depth):
         else:
             # The pair comparison returned a definite answer - we're done
             return rc
-    if idx + 1 < len(right):
-        log.debug(f"{depth * '  '} - Left side ran out of items, so inputs are in the right order")
-        return True
+    else: 
+        if idx + 1 < len(right):
+            log.debug(f"{depth * '  '} - Left side ran out of items, so inputs are in the right order")
+            return True
 
     return None
 
@@ -116,6 +117,11 @@ class Reception:
         rv += f"\n          right: {self.RECEPTION_RIGHT}"
         return rv
 
+    def as_input_file_string(self):
+        left  = str(self.RECEPTION_LEFT)  .replace(" ", "")
+        right = str(self.RECEPTION_RIGHT) .replace(" ", "")
+        return f"{left}\n{right}"
+
 
 class Dataset:
     def __init__(self, reception_list):
@@ -127,6 +133,14 @@ class Dataset:
             rv += str(reception)
         rv += "\n>>"
         return rv
+
+    def dump_to(self, filename):
+        next_string = None
+        with open(filename, 'w') as file:
+            for reception in self.DATASET_TUPLE:
+                if next_string is not None: file.write("\n\n")
+                next_string = reception.as_input_file_string()
+                file.write(next_string)
 
 
 def parse_input(data_lines):
@@ -148,10 +162,12 @@ def parse_input(data_lines):
 
 if __name__ == '__main__':
     log.info("Beginning parse...")
-    if True:
+    if False:
         dataset = parse_input(sample_data)
+        dataset.dump_to("regurgitate-13-sample.txt")
     else:
         dataset = parse_input(open(DATAFILE, 'r').read())
+        dataset.dump_to("regurgitate-13-datafile.txt")
 
     if True:
         log.info("Showing read tuples...")
