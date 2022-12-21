@@ -4,7 +4,7 @@ import sys
 
 DATAFILE = "./data/14.txt"
 
-logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 log = logging.getLogger()
 
 
@@ -115,13 +115,13 @@ class Slice:
     def get_icon_at(self, position_tuple):
         delta_x, delta_y = self.absolute_to_relative(position_tuple)
         rv = self.__slice_grid[delta_y][delta_x]
-        log.info(f"Found a {rv} at   PURE {position_tuple[0]} {position_tuple[1]}    RELATIVE {delta_x} {delta_y}")
+        log.debug(f"Found a {rv} at   PURE {position_tuple[0]} {position_tuple[1]}    RELATIVE {delta_x} {delta_y}")
 
         return rv
 
     def place_at(self, icon, position_tuple):
         delta_x, delta_y = self.absolute_to_relative(position_tuple)
-        log.info(f"Placing {icon} at  PURE {position_tuple[0]} {position_tuple[1]}    RELATIVE {delta_x} {delta_y}")
+        log.debug(f"Placing {icon} at  PURE {position_tuple[0]} {position_tuple[1]}    RELATIVE {delta_x} {delta_y}")
 
         self.__slice_grid[delta_y][delta_x] = icon
 
@@ -151,7 +151,7 @@ def drop_sand(slice):
     current_coordinates = slice.SLICE_SOURCE
 
     while True:
-        log.info(f"dropping next is -> {current_coordinates}")
+        log.debug(f"dropping next is -> {current_coordinates}")
         if current_coordinates[1] == slice.SLICE_MAX_Y:
             return None
         if slice.get_icon_at(down(current_coordinates)) == slice.ICON_EMPTY:
@@ -192,8 +192,8 @@ if __name__ == '__main__':
     slice = Slice(scan)
 
     slice.slice_render()
-    for x in range(30):
-        log.info(f"After {x + 1} units")
+    x = 0
+    while True:
         end_coordinates = drop_sand(slice)
         if end_coordinates is not None:
             slice.place_sand_at(end_coordinates)
@@ -201,7 +201,13 @@ if __name__ == '__main__':
             log.info(f"Sand fell int abyss")
             break
 
-        slice.slice_render()
+        x += 1
+        if (0 == x % 10): 
+            log.info(f"After {x + 1} units")
+            slice.slice_render()
+
+    log.info(f"Dropped {x} pieces of sand")
+
 
     
 
