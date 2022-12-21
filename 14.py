@@ -55,28 +55,37 @@ class Slice:
                 max_x = max(max_x, point.POINT_X)
                 max_y = max(max_y, point.POINT_Y)
 
-        self.SLICE_SCAN     = scan
-        self.SLICE_MIN_X    = min_x - 1
-        self.SLICE_MIN_Y    = min_y - 1
-        self.SLICE_WIDTH    = max_x - min_x + 2
-        self.SLICE_HEIGHT   = max_y - min_y + 2
-
         self.SLICE_SOURCE_X = 500
         self.SLICE_SOURCE_Y =   0
+
+        self.SLICE_SCAN     = scan
+        self.SLICE_MIN_X    = min_x - 1
+        self.SLICE_MIN_Y    = min(min_y, self.SLICE_SOURCE_Y) - 1
+        self.SLICE_MAX_X    = max_x + 1
+        self.SLICE_MAX_Y    = max_y + 1
+        self.SLICE_WIDTH    = self.SLICE_MAX_X - self.SLICE_MIN_X
+        self.SLICE_HEIGHT   = self.SLICE_MAX_Y - self.SLICE_MIN_Y
+
         self.SLICE_SOURCE   =   (self.SLICE_SOURCE_X, self.SLICE_SOURCE_Y, )
 
         log.info(f"SLICE_MIN_X  :{self.SLICE_MIN_X}")
         log.info(f"SLICE_MIN_Y  :{self.SLICE_MIN_Y}")
+        log.info(f"SLICE_MAX_X  :{self.SLICE_MAX_X}")
+        log.info(f"SLICE_MAX_Y  :{self.SLICE_MAX_Y}")
         log.info(f"SLICE_WIDTH  :{self.SLICE_WIDTH}")
         log.info(f"SLICE_HEIGHT :{self.SLICE_HEIGHT}")
 
         grid = []
-        for x in range(self.SLICE_WIDTH):
+        for y in range(self.SLICE_HEIGHT):
             row = []
-            for y in range(self.SLICE_HEIGHT):
+            for x in range(self.SLICE_WIDTH):
                 row.append(Slice.ICON_EMPTY)
             grid.append(row)
         self.__slice_grid = grid
+
+        def better_range(start_value, finish_value):
+            step_size = 1 if start_value < finish_value else -1
+            return list(range(start_value, finish_value + step_size, step_size))
 
         # initial linedraw
         for segment in scan.SCAN_SEGMENTS:
@@ -86,10 +95,10 @@ class Slice:
                     log.info(f"Attempting draw from {last_point} to {point}...")
                     is_horizontal = last_point.POINT_X == point.POINT_X
                     if is_horizontal:
-                        for y in range(last_point.POINT_Y, point.POINT_Y):
+                        for y in better_range(last_point.POINT_Y, point.POINT_Y):
                             self.place_sand_at((last_point.POINT_X, y))
                     else:
-                        for x in range(last_point.POINT_X, point.POINT_X):
+                        for x in better_range(last_point.POINT_X, point.POINT_X):
                             self.place_sand_at((x, last_point.POINT_Y))
                 last_point = point
         return
@@ -107,10 +116,9 @@ class Slice:
         x, y = position_tuple
         delta_x = x - self.SLICE_MIN_X
         delta_y = y - self.SLICE_MIN_Y
-        log.info(f"Grid extents are {len(self.__slice_grid)} and {len(self.__slice_grid[0])}")
-        log.info(f"TYryng drw at PURE {x} {y}    (actually) {delta_x} {delta_y}")
+        log.info(f"Placing sand at  PURE {x} {y}    RELATIVE {delta_x} {delta_y}")
 
-        self.__slice_grid[delta_x][delta_y] = self.ICON_ROCK
+        self.__slice_grid[delta_y][delta_x] = self.ICON_ROCK
 
 
 def down(current):
