@@ -20,7 +20,7 @@ int main()
     int s;
     for (x = 0; x < search_extent; x++)
     {
-        // if (0 == (x % 100))
+        if (0 == (x % 100))
         {
             printf("Startin on row %d\n", x);
         }
