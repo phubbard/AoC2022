@@ -58,11 +58,14 @@ class Slice:
         self.SLICE_SOURCE_X = 500
         self.SLICE_SOURCE_Y =   0
 
+        self.SLICE_FUDGE    = self.SLICE_SOURCE_X + 10
+
         self.SLICE_SCAN     = scan
-        self.SLICE_MIN_X    = min_x - 1
+        self.SLICE_MIN_X    = min_x - 1 - self.SLICE_FUDGE
         self.SLICE_MIN_Y    = min(min_y, self.SLICE_SOURCE_Y) - 1
-        self.SLICE_MAX_X    = max_x + 1
-        self.SLICE_MAX_Y    = max_y + 1
+        self.SLICE_MAX_X    = max_x + 1 + self.SLICE_FUDGE
+        self.SLICE_MAX_Y    = max_y + 3
+        self.SLICE_FLOOR_Y  = max_y + 2
         self.SLICE_WIDTH    = self.SLICE_MAX_X - self.SLICE_MIN_X + 1
         self.SLICE_HEIGHT   = self.SLICE_MAX_Y - self.SLICE_MIN_Y + 1
 
@@ -88,6 +91,7 @@ class Slice:
             return list(range(start_value, finish_value + step_size, step_size))
 
         # initial linedraw
+        log.info(f"Draw in rock...")
         for segment in scan.SCAN_SEGMENTS:
             last_point = None
             for point in segment:
@@ -101,7 +105,14 @@ class Slice:
                         for x in better_range(last_point.POINT_X, point.POINT_X):
                             self.place_rock_at((x, last_point.POINT_Y))
                 last_point = point
+
+        log.info(f"Draw in floor...")
+        for x in better_range(self.SLICE_MIN_X + 1, self.SLICE_MAX_X - 1):
+            self.place_rock_at((x, self.SLICE_FLOOR_Y))
+
         return
+
+
 
     def absolute_to_relative(self, absolute_coordinate):
         return (absolute_coordinate[0] - self.SLICE_MIN_X,
@@ -184,7 +195,7 @@ def parse_input(text):
 
 
 if __name__ == '__main__':
-    if False:
+    if True:
         scan = parse_input(SAMPLE_DATA)
     else:
         scan = parse_input(open(DATAFILE, 'r').read())
@@ -205,6 +216,10 @@ if __name__ == '__main__':
         if (0 == x % 10): 
             log.info(f"After {x + 1} units")
             slice.slice_render()
+
+        if end_coordinates == slice.SLICE_SOURCE:
+            log.info(f"Sand filled ALL!")
+            break
 
     log.info(f"FINAL SHAPE:")
     slice.slice_render()
