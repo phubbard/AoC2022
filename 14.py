@@ -63,6 +63,7 @@ class Slice:
 
         self.SLICE_SOURCE_X = 500
         self.SLICE_SOURCE_Y =   0
+        self.SLICE_SOURCE   =   (self.SLICE_SOURCE_X, self.SLICE_SOURCE_Y, )
 
         grid = []
         for y in range(self.SLICE_HEIGHT):
@@ -88,10 +89,10 @@ class Slice:
             string_row = "".join(row)
             log.info(string_row)
 
-    def get_icon_at(self, x, y):
+    def get_icon_at(self, position_tuple):
         pass
 
-    def place_sand_at(self, x, y):
+    def place_sand_at(self, position_tuple):
         pass
 
 
@@ -107,22 +108,24 @@ def down_right(current):
     return current[0] - 1, current[1] + 1
 
 
-def drop_sand(map, min_x_val):
-    # Returns ending coordinates
-    map[500, 0] = 'o'
-    current_coordinates = (500, 0,)
+def drop_sand(slice):
 
-    while current_coordinates[0] >= min_x_val:
-        if map[down(current_coordinates)] == '.':
+    # Returns ending coordinates
+    current_coordinates = slice.SLICE_SOURCE
+
+    fell_off_bottom = False
+    while True:
+        fell_off_bottom = current_coordinates[0] < slice.SLICE_MIN_X
+        if slice.get_icon_at(down(current_coordinates)) == slice.ICON_EMPTY:
             current_coordinates = down(current_coordinates)
-        elif map[down_left(current_coordinates)] == '.':
+        elif slice.get_icon_at(down_left(current_coordinates)) == slice.ICON_EMPTY:
             current_coordinates = down_left(current_coordinates)
-        elif map[down_right(current_coordinates)] == '.':
+        elif slice.get_icon_at(down_right(current_coordinates)) == slice.ICON_EMPTY:
             current_coordinates = down_right(current_coordinates)
         else:
             # FIXME flag ending condition. How do we discern end vs keep-here?
             break
-    return current_coordinates
+    return None if fell_off_bottom else current_coordinates
 
 
 def parse_input(text):
