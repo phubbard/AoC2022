@@ -103,6 +103,9 @@ class Slice:
                 last_point = point
         return
 
+    def absolute_to_relative(self, absolute_coordinate):
+        return (absolute_coordinate[0] - self.SLICE_MIN_X,
+                absolute_coordinate[1] - self.SLICE_MIN_Y, )
 
     def slice_render(self):
         for row in self.__slice_grid:
@@ -110,13 +113,15 @@ class Slice:
             log.info(string_row)
 
     def get_icon_at(self, position_tuple):
-        pass
+        delta_x, delta_y = self.absolute_to_relative(position_tuple)
+        rv = self.__slice_grid[delta_y][delta_x]
+        log.info(f"Found a {rv} at   PURE {position_tuple[0]} {position_tuple[1]}    RELATIVE {delta_x} {delta_y}")
+
+        return rv
 
     def place_at(self, icon, position_tuple):
-        x, y = position_tuple
-        delta_x = x - self.SLICE_MIN_X
-        delta_y = y - self.SLICE_MIN_Y
-        log.info(f"Placing sand at  PURE {x} {y}    RELATIVE {delta_x} {delta_y}")
+        delta_x, delta_y = self.absolute_to_relative(position_tuple)
+        log.info(f"Placing {icon} at  PURE {position_tuple[0]} {position_tuple[1]}    RELATIVE {delta_x} {delta_y}")
 
         self.__slice_grid[delta_y][delta_x] = icon
 
@@ -129,7 +134,7 @@ class Slice:
 
 
 def down(current):
-    return current[0] - 1, current[1]
+    return current[0], current[1] - 1
 
 
 def down_left(current):
@@ -137,7 +142,7 @@ def down_left(current):
 
 
 def down_right(current):
-    return current[0] - 1, current[1] + 1
+    return current[0] + 1, current[1] - 1
 
 
 def drop_sand(slice):
@@ -147,7 +152,8 @@ def drop_sand(slice):
 
     fell_off_bottom = False
     while True:
-        fell_off_bottom = current_coordinates[0] < slice.SLICE_MIN_X
+        log.info(f"dropping next is -> {current_coordinates}")
+        fell_off_bottom = current_coordinates[1] >= slice.SLICE_MAX_Y
         if slice.get_icon_at(down(current_coordinates)) == slice.ICON_EMPTY:
             current_coordinates = down(current_coordinates)
         elif slice.get_icon_at(down_left(current_coordinates)) == slice.ICON_EMPTY:
