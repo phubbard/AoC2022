@@ -79,12 +79,20 @@ def all_positions(sensor, distance, y_val):
         rc[0] = 0
 
 if __name__ == '__main__':
+    frequency_x_scalar = 4000000
+
     if False:
         sensor_list = parse_input(sample_data)
         test_y_index = 10
+        search_extent = 20
+        expected_answer = 56000011
+        c_file_name = "massaged_sensor_15.c"
     else:
         sensor_list = parse_input(open(DATAFILE, 'r').read())
         test_y_index = 2000000
+        search_extent = 4000000
+        expected_answer = -1
+        c_file_name = "massaged_sensor_15_final.c"
 
     log.info("Reflecting input...")
     for sensor in sensor_list:
@@ -117,22 +125,39 @@ if __name__ == '__main__':
         
     log.info(f"  --> max covered  min_covered_x:{min_covered_x} max_covered_x:{max_covered_x}")
 
-    too_big_to_fail = 7000000  # Result here is 5394423 -> correct
-    log.info(f"locate along test_y_index:{test_y_index} ...")
-    covered_count = 0
-    for x in range(-too_big_to_fail, too_big_to_fail):
-        if 0 == (x % 1000000): log.debug(f"at x = {x}")
-        is_covered = False
-        is_beacon  = False
-        is_sensor  = False
-        for sensor in sensor_list:
-            is_covered = is_covered or sensor.is_point_in_manhattan_range(x, test_y_index)
-            is_beacon  = is_beacon or ((x == sensor.SENSOR_BEACON_X) and (test_y_index == sensor.SENSOR_BEACON_Y))
-            is_sensor  = is_sensor or ((x == sensor.SENSOR_MY_X) and (test_y_index     == sensor.SENSOR_MY_Y))
-        if is_covered and not is_beacon and not is_sensor:
-            covered_count += 1
-    log.info(f"    ... yields covered_count:{covered_count}")
+    part_one = False
+    if part_one:
+        too_big_to_fail = 7000000  # Result here is 5394423 -> correct
+        log.info(f"locate along test_y_index:{test_y_index} ...")
+        covered_count = 0
+        for x in range(-too_big_to_fail, too_big_to_fail):
+            if 0 == (x % 1000000): log.debug(f"at x = {x}")
+            is_covered = False
+            is_beacon  = False
+            is_sensor  = False
+            for sensor in sensor_list:
+                is_covered = is_covered or sensor.is_point_in_manhattan_range(x, test_y_index)
+                is_beacon  = is_beacon or ((x == sensor.SENSOR_BEACON_X) and (test_y_index == sensor.SENSOR_BEACON_Y))
+                is_sensor  = is_sensor or ((x == sensor.SENSOR_MY_X) and (test_y_index     == sensor.SENSOR_MY_Y))
+            if is_covered and not is_beacon and not is_sensor:
+                covered_count += 1
+        log.info(f"    ... yields covered_count:{covered_count}")
 
+    if True:
+        log.info(f"Generate C to do it...")
+        cpp = []
+        cpp          += ["const struct sensor_t sensors = {"]
+        for sensor in sensor_list:
+            cpp +=      ["    {" + f".location_x={sensor.SENSOR_MY_X}, .location_y={sensor.SENSOR_MY_Y}, .distance={sensor.SENSOR_MANHATTAN_DISTANCE}" + "}", ]
+        cpp          += ["};"]
+        cpp          += [""]
+        cpp          += [f"const int search_extent = {search_extent};"]
+        cpp          += [""]
+        cpp          += [f"const int expected_answer = {expected_answer};"]
+        cpp          += [""]
+        cpp          += [f"const int frequency_x_scalar = {frequency_x_scalar};"]
+        with open(c_file_name, 'w') as file:
+            file.write("\n".join(cpp))
 
 
 
