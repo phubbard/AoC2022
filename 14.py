@@ -71,9 +71,9 @@ class Slice:
         log.info(f"SLICE_HEIGHT :{self.SLICE_HEIGHT}")
 
         grid = []
-        for y in range(self.SLICE_HEIGHT):
+        for x in range(self.SLICE_WIDTH):
             row = []
-            for x in range(self.SLICE_WIDTH):
+            for y in range(self.SLICE_HEIGHT):
                 row.append(Slice.ICON_EMPTY)
             grid.append(row)
         self.__slice_grid = grid
@@ -107,6 +107,7 @@ class Slice:
         x, y = position_tuple
         delta_x = x - self.SLICE_MIN_X
         delta_y = y - self.SLICE_MIN_Y
+        log.info(f"Grid extents are {len(self.__slice_grid)} and {len(self.__slice_grid[0])}")
         log.info(f"TYryng drw at PURE {x} {y}    (actually) {delta_x} {delta_y}")
 
         self.__slice_grid[delta_x][delta_y] = self.ICON_ROCK
