@@ -134,15 +134,15 @@ class Slice:
 
 
 def down(current):
-    return current[0], current[1] - 1
+    return current[0], current[1] + 1
 
 
 def down_left(current):
-    return current[0] - 1, current[1] - 1
+    return current[0] - 1, current[1] + 1
 
 
 def down_right(current):
-    return current[0] + 1, current[1] - 1
+    return current[0] + 1, current[1] + 1
 
 
 def drop_sand(slice):
@@ -192,10 +192,11 @@ if __name__ == '__main__':
     slice = Slice(scan)
 
     slice.slice_render()
-    end_coordinates = drop_sand(slice)
-    if end_coordinates is not None:
-        slice.place_sand_at(end_coordinates)
-    slice.slice_render()
+    for x in range(5):
+        end_coordinates = drop_sand(slice)
+        if end_coordinates is not None:
+            slice.place_sand_at(end_coordinates)
+        slice.slice_render()
 
     
 
