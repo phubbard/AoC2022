@@ -63,8 +63,8 @@ class Slice:
         self.SLICE_MIN_Y    = min(min_y, self.SLICE_SOURCE_Y) - 1
         self.SLICE_MAX_X    = max_x + 1
         self.SLICE_MAX_Y    = max_y + 1
-        self.SLICE_WIDTH    = self.SLICE_MAX_X - self.SLICE_MIN_X
-        self.SLICE_HEIGHT   = self.SLICE_MAX_Y - self.SLICE_MIN_Y
+        self.SLICE_WIDTH    = self.SLICE_MAX_X - self.SLICE_MIN_X + 1
+        self.SLICE_HEIGHT   = self.SLICE_MAX_Y - self.SLICE_MIN_Y + 1
 
         self.SLICE_SOURCE   =   (self.SLICE_SOURCE_X, self.SLICE_SOURCE_Y, )
 
