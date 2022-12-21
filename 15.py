@@ -81,7 +81,7 @@ def all_positions(sensor, distance, y_val):
 if __name__ == '__main__':
     frequency_x_scalar = 4000000
 
-    if False:
+    if True:
         sensor_list = parse_input(sample_data)
         test_y_index = 10
         search_extent = 20
@@ -146,9 +146,9 @@ if __name__ == '__main__':
     if True:
         log.info(f"Generate C to do it...")
         cpp = []
-        cpp          += ["const struct sensor_t sensors = {"]
+        cpp          += ["const struct sensor_t sensors[] = {"]
         for sensor in sensor_list:
-            cpp +=      ["    {" + f".location_x={sensor.SENSOR_MY_X}, .location_y={sensor.SENSOR_MY_Y}, .distance={sensor.SENSOR_MANHATTAN_DISTANCE}" + "}", ]
+            cpp +=      ["    {" + f".location_x={sensor.SENSOR_MY_X}, .location_y={sensor.SENSOR_MY_Y}, .distance={sensor.SENSOR_MANHATTAN_DISTANCE}" + "},", ]
         cpp          += ["};"]
         cpp          += [""]
         cpp          += [f"const int search_extent = {search_extent};"]

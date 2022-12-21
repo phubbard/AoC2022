@@ -1,4 +1,4 @@
-const struct sensor_t sensors = {
+const struct sensor_t sensors[] = {
     {.location_x=2832148, .location_y=322979, .distance=647518}
     {.location_x=1449180, .location_y=3883502, .distance=1513241}
     {.location_x=2808169, .location_y=1194666, .distance=1543184}
