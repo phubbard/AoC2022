@@ -195,7 +195,7 @@ def parse_input(text):
 
 
 if __name__ == '__main__':
-    if True:
+    if False:
         scan = parse_input(SAMPLE_DATA)
     else:
         scan = parse_input(open(DATAFILE, 'r').read())
@@ -213,7 +213,7 @@ if __name__ == '__main__':
             break
 
         x += 1
-        if (0 == x % 10): 
+        if (0 == x % 500): 
             log.info(f"After {x + 1} units")
             slice.slice_render()
 
@@ -223,7 +223,7 @@ if __name__ == '__main__':
 
     log.info(f"FINAL SHAPE:")
     slice.slice_render()
-    log.info(f"Dropped {x} pieces of sand, and current result is 578")
+    log.info(f"Dropped {x} pieces of sand, and current result is 24377")
 
 
     
