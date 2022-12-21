@@ -117,7 +117,7 @@ if __name__ == '__main__':
         
     log.info(f"  --> max covered  min_covered_x:{min_covered_x} max_covered_x:{max_covered_x}")
 
-    too_big_to_fail = 800  # Yiedled 4991702, failed with "too low"
+    too_big_to_fail = 7000000
     log.info(f"locate along test_y_index:{test_y_index} ...")
     covered_count = 0
     for x in range(-too_big_to_fail, too_big_to_fail):
