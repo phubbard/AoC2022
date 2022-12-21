@@ -58,6 +58,26 @@ class Sensor:
 def parse_input(input_string):
     return [Sensor(line) for line in input_string.strip().split("\n")]
 
+
+def manhattan_distance(one, two):
+    x_dist = abs(one[0] - two[0])
+    y_dist = abs(one[1] - two[1])
+    return x_dist + y_dist
+
+
+def all_positions(sensor, distance, y_val):
+    # For a sensor at x,y and within the manhattan distance, return a
+    # vector of x,y that have the given y_val.
+    # Feels like rasterizing at a given scan line.
+    delta_y = abs(sensor[1] - y_val)
+    half_length = distance - delta_y
+    if half_length <= 0:
+        # Triangle does not intersect the y_val line
+        return []
+    rc = [(0, y_val) for _ in range(half_length * 2)]
+    for idx, value in enumerate(rc):
+        rc[0] = 0
+
 if __name__ == '__main__':
     if False:
         sensor_list = parse_input(sample_data)
@@ -100,9 +120,6 @@ if __name__ == '__main__':
         if is_covered and not is_beacon:
             covered_count += 1
     log.info(f"    ... yields covered_count:{covered_count}")
-
-
-
 
 
 
