@@ -22,7 +22,7 @@ class Point:
         self.POINT_X = x
         self.POINT_Y = y
 
-    def __str__(self): return f"({self.POINT_X}, {self.POINT_X})"
+    def __str__(self): return f"({self.POINT_X}, {self.POINT_Y})"
 
 
 class Scan:
@@ -65,23 +65,34 @@ class Slice:
         self.SLICE_SOURCE_Y =   0
         self.SLICE_SOURCE   =   (self.SLICE_SOURCE_X, self.SLICE_SOURCE_Y, )
 
+        log.info(f"SLICE_MIN_X  :{self.SLICE_MIN_X}")
+        log.info(f"SLICE_MIN_Y  :{self.SLICE_MIN_Y}")
+        log.info(f"SLICE_WIDTH  :{self.SLICE_WIDTH}")
+        log.info(f"SLICE_HEIGHT :{self.SLICE_HEIGHT}")
+
         grid = []
         for y in range(self.SLICE_HEIGHT):
             row = []
             for x in range(self.SLICE_WIDTH):
                 row.append(Slice.ICON_EMPTY)
             grid.append(row)
+        self.__slice_grid = grid
 
         # initial linedraw
         for segment in scan.SCAN_SEGMENTS:
             last_point = None
             for point in segment:
-                if last_point is not None: 
-                    # Draw line
-                    pass
+                if last_point is not None:
+                    log.info(f"Attempting draw from {last_point} to {point}...")
+                    is_horizontal = last_point.POINT_X == point.POINT_X
+                    if is_horizontal:
+                        for y in range(last_point.POINT_Y, point.POINT_Y):
+                            self.place_sand_at((last_point.POINT_X, y))
+                    else:
+                        for x in range(last_point.POINT_X, point.POINT_X):
+                            self.place_sand_at((x, last_point.POINT_Y))
                 last_point = point
-
-        self.__slice_grid = grid
+        return
 
 
     def slice_render(self):
@@ -93,7 +104,12 @@ class Slice:
         pass
 
     def place_sand_at(self, position_tuple):
-        pass
+        x, y = position_tuple
+        delta_x = x - self.SLICE_MIN_X
+        delta_y = y - self.SLICE_MIN_Y
+        log.info(f"TYryng drw at PURE {x} {y}    (actually) {delta_x} {delta_y}")
+
+        self.__slice_grid[delta_x][delta_y] = self.ICON_ROCK
 
 
 def down(current):
@@ -152,11 +168,6 @@ if __name__ == '__main__':
         scan = parse_input(open(DATAFILE, 'r').read())
 
     slice = Slice(scan)
-
-    log.info(f"SLICE_MIN_X  :{slice.SLICE_MIN_X}")
-    log.info(f"SLICE_MIN_Y  :{slice.SLICE_MIN_Y}")
-    log.info(f"SLICE_WIDTH  :{slice.SLICE_WIDTH}")
-    log.info(f"SLICE_HEIGHT :{slice.SLICE_HEIGHT}")
 
     slice.slice_render()
     
