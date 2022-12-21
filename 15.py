@@ -81,8 +81,10 @@ def all_positions(sensor, distance, y_val):
 if __name__ == '__main__':
     if False:
         sensor_list = parse_input(sample_data)
+        test_y_index = 10
     else:
         sensor_list = parse_input(open(DATAFILE, 'r').read())
+        test_y_index = 2000000
 
     log.info("Reflecting input...")
     for sensor in sensor_list:
@@ -106,20 +108,33 @@ if __name__ == '__main__':
     megabytes_approx = (approx_extent_x * approx_extent_y * 4) / 1000000
     log.info(f"NAive full grid storage requirements: {megabytes_approx} megabytes (!!!)")
 
-    test_y_index = 10
-    too_big_to_fail = 8000000
+    log.info(f"Given distance, determine max covered spots...")
+    min_covered_x = sensor_list[0].SENSOR_MY_X
+    max_covered_x = sensor_list[0].SENSOR_MY_X
+    for sensor in sensor_list:
+        min_covered_x = min(min_covered_x, sensor.SENSOR_MY_X - sensor.SENSOR_MANHATTAN_DISTANCE)
+        max_covered_x = max(max_covered_x, sensor.SENSOR_MY_X + sensor.SENSOR_MANHATTAN_DISTANCE)
+        
+    log.info(f"  --> max covered  min_covered_x:{min_covered_x} max_covered_x:{max_covered_x}")
+
+    too_big_to_fail = 800  # Yiedled 4991702, failed with "too low"
     log.info(f"locate along test_y_index:{test_y_index} ...")
     covered_count = 0
     for x in range(-too_big_to_fail, too_big_to_fail):
-        if 0 == (x % 100000): log.debug(f"at x = {x}")
+        if 0 == (x % 1000000): log.debug(f"at x = {x}")
         is_covered = False
         is_beacon  = False
+        is_sensor  = False
         for sensor in sensor_list:
             is_covered = is_covered or sensor.is_point_in_manhattan_range(x, test_y_index)
-            is_beacon = is_beacon or ((x == sensor.SENSOR_BEACON_X) and (test_y_index == sensor.SENSOR_BEACON_Y))
-        if is_covered and not is_beacon:
+            is_beacon  = is_beacon or ((x == sensor.SENSOR_BEACON_X) and (test_y_index == sensor.SENSOR_BEACON_Y))
+            is_sensor  = is_sensor or ((x == sensor.SENSOR_MY_X) and (test_y_index     == sensor.SENSOR_MY_Y))
+        if is_covered and not is_beacon and not is_sensor:
             covered_count += 1
     log.info(f"    ... yields covered_count:{covered_count}")
+
+
+
 
 
 
