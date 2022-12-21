@@ -36,6 +36,7 @@ class Slice:
     ICON_ROCK   = '#'
     ICON_SAND   = 'o'
     ICON_SOURCE = '+'
+    ICON_VOID   = '~'
 
     def __init__(self, scan):
 
@@ -86,6 +87,12 @@ class Slice:
         for row in self.__slice_grid:
             string_row = "".join(row)
             log.info(string_row)
+
+    def get_icon_at(self, x, y):
+        pass
+
+    def place_sand_at(self, x, y):
+        pass
 
 
 def down(current):
