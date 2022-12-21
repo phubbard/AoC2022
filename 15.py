@@ -81,7 +81,7 @@ def all_positions(sensor, distance, y_val):
 if __name__ == '__main__':
     frequency_x_scalar = 4000000
 
-    if True:
+    if False:
         sensor_list = parse_input(sample_data)
         test_y_index = 10
         search_extent = 20

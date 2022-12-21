@@ -9,7 +9,7 @@ struct sensor_t {
     int distance;
 };
 
-#include "massaged_sensor_15.c"
+#include "massaged_sensor_15_final.c"
 
 int main()
 {
@@ -20,6 +20,10 @@ int main()
     int s;
     for (x = 0; x < search_extent; x++)
     {
+        // if (0 == (x % 100))
+        {
+            printf("Startin on row %d\n", x);
+        }
         for (y = 0; y < search_extent; y++)
         {
             int is_covered = 0;
