@@ -150,10 +150,10 @@ def drop_sand(slice):
     # Returns ending coordinates
     current_coordinates = slice.SLICE_SOURCE
 
-    fell_off_bottom = False
     while True:
         log.info(f"dropping next is -> {current_coordinates}")
-        fell_off_bottom = current_coordinates[1] >= slice.SLICE_MAX_Y
+        if current_coordinates[1] == slice.SLICE_MAX_Y:
+            return None
         if slice.get_icon_at(down(current_coordinates)) == slice.ICON_EMPTY:
             current_coordinates = down(current_coordinates)
         elif slice.get_icon_at(down_left(current_coordinates)) == slice.ICON_EMPTY:
@@ -163,7 +163,7 @@ def drop_sand(slice):
         else:
             # FIXME flag ending condition. How do we discern end vs keep-here?
             break
-    return None if fell_off_bottom else current_coordinates
+    return current_coordinates
 
 
 def parse_input(text):
@@ -192,10 +192,15 @@ if __name__ == '__main__':
     slice = Slice(scan)
 
     slice.slice_render()
-    for x in range(5):
+    for x in range(30):
+        log.info(f"After {x + 1} units")
         end_coordinates = drop_sand(slice)
         if end_coordinates is not None:
             slice.place_sand_at(end_coordinates)
+        else: 
+            log.info(f"Sand fell int abyss")
+            break
+
         slice.slice_render()
 
     
