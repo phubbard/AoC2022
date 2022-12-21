@@ -96,10 +96,10 @@ class Slice:
                     is_horizontal = last_point.POINT_X == point.POINT_X
                     if is_horizontal:
                         for y in better_range(last_point.POINT_Y, point.POINT_Y):
-                            self.place_sand_at((last_point.POINT_X, y))
+                            self.place_rock_at((last_point.POINT_X, y))
                     else:
                         for x in better_range(last_point.POINT_X, point.POINT_X):
-                            self.place_sand_at((x, last_point.POINT_Y))
+                            self.place_rock_at((x, last_point.POINT_Y))
                 last_point = point
         return
 
@@ -112,13 +112,20 @@ class Slice:
     def get_icon_at(self, position_tuple):
         pass
 
-    def place_sand_at(self, position_tuple):
+    def place_at(self, icon, position_tuple):
         x, y = position_tuple
         delta_x = x - self.SLICE_MIN_X
         delta_y = y - self.SLICE_MIN_Y
         log.info(f"Placing sand at  PURE {x} {y}    RELATIVE {delta_x} {delta_y}")
 
-        self.__slice_grid[delta_y][delta_x] = self.ICON_ROCK
+        self.__slice_grid[delta_y][delta_x] = icon
+
+    def place_sand_at(self, position_tuple): 
+        self.place_at(self.ICON_SAND, position_tuple)
+
+    def place_rock_at(self, position_tuple): 
+        self.place_at(self.ICON_ROCK, position_tuple)
+
 
 
 def down(current):
@@ -179,6 +186,11 @@ if __name__ == '__main__':
     slice = Slice(scan)
 
     slice.slice_render()
+    end_coordinates = drop_sand(slice)
+    if end_coordinates is not None:
+        slice.place_sand_at(end_coordinates)
+    slice.slice_render()
+
     
 
 
