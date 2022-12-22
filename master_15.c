@@ -3,6 +3,9 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+#include "unistd.h"
+#include "omp.h"
+
 struct sensor_t {
     int location_x;
     int location_y;
@@ -13,6 +16,15 @@ struct sensor_t {
 
 int main()
 {
+    printf("Openmp test...\n");
+
+#pragma omp parallel num_threads(4)
+    printf("Hellow from thread %d in process %d.\n",
+           omp_get_thread_num(), getpid());
+
+    printf("Hellow from thread %d in process %d.\n",
+           omp_get_thread_num(), getpid());
+
     const int sensor_extent = sizeof(sensors) / sizeof(sensors[0]);
     printf("Starting with %d elements...\n", sensor_extent);
     int x;
