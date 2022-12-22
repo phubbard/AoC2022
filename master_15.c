@@ -17,21 +17,20 @@ struct sensor_t {
 int main()
 {
     printf("Openmp test...\n");
-
 #pragma omp parallel num_threads(4)
-    printf("Hellow from thread %d in process %d.\n",
-           omp_get_thread_num(), getpid());
-
     printf("Hellow from thread %d in process %d.\n",
            omp_get_thread_num(), getpid());
 
     const int sensor_extent = sizeof(sensors) / sizeof(sensors[0]);
     printf("Starting with %d elements...\n", sensor_extent);
+
     int x;
-    int y;
-    int s;
+#pragma omp parallel for private(x)
     for (x = 0; x < search_extent; x++)
     {
+        int y;
+        int s;
+
         if (0 == (x % 100))
         {
             printf("Startin on row %d\n", x);
