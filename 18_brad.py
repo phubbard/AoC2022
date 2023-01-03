@@ -20,7 +20,7 @@ sample_input = """
 """
 
 sample_answer_a = 64
-sample_answer_b = 70
+sample_answer_b = 58
 
 
 def log(some_string):
@@ -90,6 +90,10 @@ class Voxel:
             if is_good: rv.append(candidate)
         return rv
 
+    def voxel_clear_neighbors(self):
+        self.__neighbors = collections.OrderedDict()
+        return self
+
     def __str__(self):
         obsidian_string = " OBSIDIAN" if self.VOXEL_IS_OBSIDIAN else ""
         return f"<{self.VOXEL_TUPLE}{obsidian_string}>"
@@ -145,7 +149,7 @@ if __name__ == '__main__':
     else:
         pure_input = open(DATAFILE, 'r').read()
         expected_output_part_a = 3396
-        expected_output_part_b = 9684
+        expected_output_part_b = 2010
         space = Space(20)
     ordinates = parse_input(pure_input)
 
@@ -154,11 +158,11 @@ if __name__ == '__main__':
 
     simple_voxels = [Voxel(tpl, True) for tpl in ordinates]
 
-    def _do_joining():
-        for voxel_left in simple_voxels:
-            for voxel_right in simple_voxels:
+    def _do_joining(join_voxels):
+        for voxel_left in join_voxels:
+            for voxel_right in join_voxels:
                 voxel_left.try_conjoin(voxel_right)
-    _do_joining()
+    _do_joining(simple_voxels)
 
     def _do_show():
         for voxel in simple_voxels:
@@ -228,8 +232,11 @@ if __name__ == '__main__':
     log(f"Recap is -> {second_opinion = }")
 
     filled_voxels  = []
-    filled_voxels += [voxel for voxel in simple_voxels]
-    filled_voxels += [Voxel(tpl)       for tpl in space.space_get_void_tuples()]
+    filled_voxels += [voxel.voxel_clear_neighbors() for voxel in simple_voxels]
+    filled_voxels += [Voxel(tpl) for tpl in space.space_get_void_tuples()]
+
+    # ugly hack
+    _do_joining(filled_voxels)
 
     part_b_surface_area_answer = do_chris_calculation(filled_voxels)
 
