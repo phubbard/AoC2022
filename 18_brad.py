@@ -249,5 +249,5 @@ if __name__ == '__main__':
     if part_b_surface_area_answer != expected_output_part_b:
         raise Exception("WRONG!")
 
-    log(f"SUCCESS")
+    log(f"SUCCESS!")
 
