@@ -26,7 +26,8 @@ def parse_data(data_lines):
         groups = matcher.findall(line)
         if not groups:
             continue
-        bp = Blueprint(int(groups[0]), int(groups[1]), int(groups[2]), (int(groups[3]), int(groups[4])), (int(groups[5]), int(groups[6])))
+        bp = Blueprint(int(groups[0]), int(groups[1]), int(groups[2]), (int(groups[3]), int(groups[4])),
+                       (int(groups[5]), int(groups[6])))
         rc.append(bp)
 
     return rc
