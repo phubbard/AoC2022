@@ -19,7 +19,8 @@ sample_input = """
 2,3,5
 """
 
-sample_answer = 64
+sample_answer_a = 64
+sample_answer_b = 70
 
 
 def log(some_string):
@@ -123,16 +124,28 @@ class Space:
         ordered_tuples = sorted(self.__voxels.keys())
         return [self.__voxels[tpl] for tpl in ordered_tuples]
 
+    def space_get_void_tuples(self):
+        rv = []
+        for x in range(self.SPACE_MINIMUM + 1, self.SPACE_MAXIMUM):
+            for y in range(self.SPACE_MINIMUM + 1, self.SPACE_MAXIMUM):
+                for z in range(self.SPACE_MINIMUM + 1, self.SPACE_MAXIMUM):
+                    here = (x, y, z)
+                    if self.space_is_empty(here):
+                        rv.append(here)
+        return rv
+
 
 
 if __name__ == '__main__':
-    if True:
+    if False:
         pure_input = sample_input
-        expected_output = sample_answer
+        expected_output_part_a = sample_answer_a
+        expected_output_part_b = sample_answer_b
         space = Space(7)
     else:
         pure_input = open(DATAFILE, 'r').read()
-        expected_output = -1
+        expected_output_part_a = 3396
+        expected_output_part_b = 9684
         space = Space(20)
     ordinates = parse_input(pure_input)
 
@@ -167,17 +180,21 @@ if __name__ == '__main__':
                 log(f"    {neigh =}")
     _do_show_ne()
 
-    total_neighbors = 0
-    for voxel in simple_voxels:
-        total_neighbors += voxel.get_neighbor_count()
+    def do_chris_calculation(obsidian_voxels):
+        total_neighbors = 0
+        for voxel in obsidian_voxels:
+            total_neighbors += voxel.get_neighbor_count()
 
-    max_possible_surface_area = 6 * len(simple_voxels)
+        max_possible_surface_area = 6 * len(obsidian_voxels)
 
-    log(f"{max_possible_surface_area = }")
+        log(f"{max_possible_surface_area = }")
+        return max_possible_surface_area - total_neighbors
 
-    part_a_surface_area_answer = max_possible_surface_area - total_neighbors
-
+    part_a_surface_area_answer = do_chris_calculation(simple_voxels)
     log(f"Answer is -> {part_a_surface_area_answer = }")
+
+    if part_a_surface_area_answer != expected_output_part_a:
+        raise Exception("WRONG!")
 
     def _install_obs():
         log(f"Installing obsidian voxels...")
@@ -197,16 +214,29 @@ if __name__ == '__main__':
                     if space.space_is_empty(candidate):
                         new_voxels.append(space.space_add(Voxel(candidate)))
             living_voxels = new_voxels
-            log(f"Considering -> {focus_voxel}, living voxels are...")
-            for living_voxel in living_voxels:
-                log(f"     {living_voxel}")
+            #log(f"Considering -> {focus_voxel}, living voxels are...")
+            #for living_voxel in living_voxels: log(f"     {living_voxel}")
         log(f"After flood, space has {space.space_count() = } elements")
     _do_flooding()
 
     def _do_peek():
-        for peek_voxel in space.space_get_voxels():
+        for peek_voxel in space.space_get_void_tuples():
             log(f"{str(peek_voxel)}")
     _do_peek()
+
+    second_opinion = do_chris_calculation(simple_voxels)
+    log(f"Recap is -> {second_opinion = }")
+
+    filled_voxels  = []
+    filled_voxels += [voxel for voxel in simple_voxels]
+    filled_voxels += [Voxel(tpl)       for tpl in space.space_get_void_tuples()]
+
+    part_b_surface_area_answer = do_chris_calculation(filled_voxels)
+
+    log(f"Answer is -> {part_b_surface_area_answer = }")
+
+    if part_b_surface_area_answer != expected_output_part_b:
+        raise Exception("WRONG!")
 
     log(f"SUCCESS")
 
