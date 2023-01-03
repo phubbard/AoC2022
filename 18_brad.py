@@ -35,9 +35,47 @@ def parse_input(data_lines):
     return rv
 
 
+class Voxel:
+
+    VOXEL_NEIGHBOR_DELTAS = [
+        (+0, +0, -1, ),
+        (+0, +0, +1, ),
+        (+0, -1, +0, ),
+        (+0, +1, +0, ),
+        (-1, +0, +0, ),
+        (+1, +0, +0, ),
+     ]
+
+    def __init__(self, three_tuple):
+        self.VOXEL_TUPLE = three_tuple
+        self.VOXEL_X     = three_tuple[0]
+        self.VOXEL_Y     = three_tuple[1]
+        self.VOXEL_Z     = three_tuple[2]
+
+        self.__neighbors = collections.OrderedDict() # Voxel to True
+
+    def try_conjoin(self, other_voxel):
+        delta_tuple = (
+            self.VOXEL_X - other_voxel.VOXEL_X, 
+            self.VOXEL_Y - other_voxel.VOXEL_Y, 
+            self.VOXEL_Z - other_voxel.VOXEL_Z,
+          )
+
+        if delta_tuple in self.VOXEL_NEIGHBOR_DELTAS:
+            self.__neighbors[other_voxel] = True
+            other_voxel.__neighbors[self] = True
+
+        return
+
+    def get_neighbor_count(self):
+        return len(self.__neighbors)
+
+    def __str__(self):
+        return f"({self.VOXEL_TUPLE})"
+
 
 if __name__ == '__main__':
-    if False:
+    if True:
         pure_input = sample_input
         expected_output = sample_answer
     else:
@@ -47,6 +85,17 @@ if __name__ == '__main__':
 
     log(f"There are {len(ordinates)} tuples.")
     log(f"The second one is {ordinates[1]}")
-    log(f"SUCCESS")
 
+    simple_voxels = [Voxel(tpl) for tpl in ordinates]
+
+    def _do_joining():
+        for voxel_left in simple_voxels:
+            for voxel_right in simple_voxels:
+                voxel_left.try_conjoin(voxel_right)
+    _do_joining()
+
+    for voxel in simple_voxels:
+        log(f"Voxel {voxel} has {voxel.get_neighbor_count()} neighbors")
+
+    log(f"SUCCESS")
 
