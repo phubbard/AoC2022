@@ -1,7 +1,7 @@
 import logging
 
 import numpy
-# from tqdm import tqdm
+from tqdm import tqdm
 import numpy as np
 
 # The Brad-config
@@ -60,13 +60,13 @@ class Jet:
 
 def display(game_state: np.array):
     # Print out the 7-width grid
-    print("game state")
+    print("Game state:")
     num_rows = game_state.shape[0]
     for line in range(num_rows):
         rc = ''
         for character in game_state[line]:
             if character == 0:
-                rc += ' '
+                rc += '.'
             elif character == 1:
                 rc += '#'
             else:
@@ -87,13 +87,15 @@ def place_rock(rock: numpy.array, game_state: np.array):
 def orchestrate():
     game_state = np.zeros((1, chamber_width))
     winds = Jet(test_winds)
-    for cur_rock in [PLUS, ELL, BAR, HASH, MINUS]:
+    print(f'{len(test_winds):,} wind jets')
+    for cur_rock in tqdm([PLUS, ELL, BAR, HASH, MINUS]):
         # Make a copy
         rock = np.array(cur_rock)
         game_state = place_rock(rock, game_state)
 
 
     display(game_state)
+
 
 
 if __name__ == '__main__':
