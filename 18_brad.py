@@ -24,7 +24,7 @@ sample_answer_b = 58
 
 
 def log(some_string):
-    print(f"P16: {some_string}")
+    print(f"P18: {some_string}")
 
 
 def parse_input(data_lines):
@@ -90,9 +90,8 @@ class Voxel:
             if is_good: rv.append(candidate)
         return rv
 
-    def voxel_clear_neighbors(self):
-        self.__neighbors = collections.OrderedDict()
-        return self
+    def voxel_rebirth(self):
+       return Voxel(self.VOXEL_TUPLE, self.VOXEL_IS_OBSIDIAN)
 
     def __str__(self):
         obsidian_string = " OBSIDIAN" if self.VOXEL_IS_OBSIDIAN else ""
@@ -102,8 +101,8 @@ class Voxel:
 
 class Space:
     def __init__(self, maximum):
-        self.SPACE_MINIMUM = 0
-        self.SPACE_MAXIMUM = maximum
+        self.SPACE_MINIMUM = -1
+        self.SPACE_MAXIMUM = maximum + 1
         self.__voxels = {}  # ordinate tuple to voxel
 
     def space_create_acorn(self):
@@ -149,7 +148,7 @@ if __name__ == '__main__':
     else:
         pure_input = open(DATAFILE, 'r').read()
         expected_output_part_a = 3396
-        expected_output_part_b = 2010
+        expected_output_part_b = 2044
         space = Space(20)
     ordinates = parse_input(pure_input)
 
@@ -159,6 +158,7 @@ if __name__ == '__main__':
     simple_voxels = [Voxel(tpl, True) for tpl in ordinates]
 
     def _do_joining(join_voxels):
+        log(f"Doing neighbor association for {len(join_voxels) =} voxels..")
         for voxel_left in join_voxels:
             for voxel_right in join_voxels:
                 voxel_left.try_conjoin(voxel_right)
@@ -182,7 +182,7 @@ if __name__ == '__main__':
             candidate_neigh = voxel.get_candidate_neighbor_tuples(space)
             for neigh in candidate_neigh:
                 log(f"    {neigh =}")
-    _do_show_ne()
+    # _do_show_ne()
 
     def do_chris_calculation(obsidian_voxels):
         total_neighbors = 0
@@ -226,14 +226,18 @@ if __name__ == '__main__':
     def _do_peek():
         for peek_voxel in space.space_get_void_tuples():
             log(f"{str(peek_voxel)}")
-    _do_peek()
+    # _do_peek()
 
     second_opinion = do_chris_calculation(simple_voxels)
     log(f"Recap is -> {second_opinion = }")
 
-    filled_voxels  = []
-    filled_voxels += [voxel.voxel_clear_neighbors() for voxel in simple_voxels]
-    filled_voxels += [Voxel(tpl) for tpl in space.space_get_void_tuples()]
+    filled_tuple  = {}
+    for voxel in simple_voxels:
+        filled_tuple[voxel.VOXEL_TUPLE] = True
+    for tpl in space.space_get_void_tuples():
+        filled_tuple[tpl] = True
+    
+    filled_voxels = [Voxel(tpl) for tpl in filled_tuple.keys()]
 
     # ugly hack
     _do_joining(filled_voxels)
