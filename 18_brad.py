@@ -75,7 +75,7 @@ class Voxel:
 
 
 if __name__ == '__main__':
-    if True:
+    if False:
         pure_input = sample_input
         expected_output = sample_answer
     else:
@@ -94,8 +94,22 @@ if __name__ == '__main__':
                 voxel_left.try_conjoin(voxel_right)
     _do_joining()
 
+    def _do_show():
+        for voxel in simple_voxels:
+            log(f"Voxel {voxel} has {voxel.get_neighbor_count()} neighbors")
+    _do_show()
+
+    total_neighbors = 0
     for voxel in simple_voxels:
-        log(f"Voxel {voxel} has {voxel.get_neighbor_count()} neighbors")
+        total_neighbors += voxel.get_neighbor_count()
+
+    max_possible_surface_area = 6 * len(simple_voxels)
+
+    log(f"{max_possible_surface_area = }")
+
+    chris_answer = max_possible_surface_area - total_neighbors
+
+    log(f"Answer is -> {chris_answer = }")
 
     log(f"SUCCESS")
 
