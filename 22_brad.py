@@ -1,8 +1,7 @@
 
 import collections
 
-sample_data = """
-        ...#
+sample_data = """        ...#
         .#..
         #...
         ....
@@ -81,12 +80,15 @@ class Grove:
             return True
 
         current_stripe = collections.OrderedDict()
-        start_column = 1
-        while stripe[start_column] == SQUARE_NONE:
-            start_column += 1
-        for column, char in enumerate(stripe, start=start_column):
+
+        log(f"Row:{self.__build_row}... -> {stripe}")
+        for idx, char in enumerate(stripe):
+            if stripe[idx] == SQUARE_NONE: continue
+            column = idx + 1
             square = Square(self.__build_row, column, char == SQUARE_OPEN, char == SQUARE_WALL)
             current_stripe[column] = square
+            log(f"  at {self.__build_row} {column} saw {char}")
+        log(f"   and ends at at {column}.")
 
         self.__squares[self.__build_row] = current_stripe
         self.__build_row += 1
@@ -154,7 +156,7 @@ class Directions:
 def parse_data(data_string, grove):
     do_directions = False
     directions = None
-    stripes = data_string.strip().split("\n")
+    stripes = data_string.split("\n")
     for stripe in stripes:
         if do_directions:
             directions = Directions(stripe)
@@ -192,7 +194,6 @@ if __name__ == '__main__':
         square = square.square_neighbor(direction)
         log(f"next: {str(square)}")
 
-    raise Exception("Deal with wrong west")
-
+    log(f"No fails.")
 
 
