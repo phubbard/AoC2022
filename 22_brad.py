@@ -43,6 +43,13 @@ DIRECTIONS_LEFT = {
         DIRECTION_WEST:  DIRECTION_SOUTH,
     }
 
+DIRECTIONS_FACING = {
+        DIRECTION_NORTH: 3,
+        DIRECTION_EAST:  0,
+        DIRECTION_SOUTH: 1,
+        DIRECTION_WEST:  2,
+    }
+
 SQUARE_NONE = ' '
 SQUARE_WALL = '#'
 SQUARE_OPEN = '.'
@@ -202,7 +209,6 @@ class Instructions:
         return f"<INSTRUCTIONS {as_string} >"
 
 
-
 def parse_data(data_string, grove):
     do_instructions = False
     instructions    = None
@@ -246,6 +252,43 @@ if __name__ == '__main__':
         log(f"next: {str(square)}")
 
     log(f"Instructions -> {str(instructions)}")
+
+    log(f"Locate start square...")
+    start_row, start_col = 1, 1
+    square = None
+    while True:
+        current_square = grove.grove_locate_square(start_row, start_col)
+        if current_square is not None:
+            break
+        start_col += 1
+    log(f"Start square found -> {str(current_square)}")
+
+    log(f"Starting instruction interpretation...")
+    current_direction = None
+
+    for step in instructions.INSTRUCTIONS_SEQUENCE:
+        if step.STEP_NEW_DIRECTION:
+            current_direction = step.STEP_NEW_DIRECTION
+        else:
+            step_count = step.STEP_NUMBER_STEPS
+            log(f"Starting {step_count} steps in {current_direction=}")
+            for _ in range(step_count):
+                next_square = current_square.square_neighbor(current_direction)
+                if next_square.SQUARE_IS_WALL:
+                    log(f"Stuck since next is {str(next_square)}")
+                    continue
+                else:
+                    log(f"Moving to {str(next_square)}")
+                    current_square = next_square
+
+    final_facing = DIRECTIONS_FACING[current_direction]
+    final_row    = current_square.SQUARE_ROW
+    final_column = current_square.SQUARE_COLUMN
+    password     = 1000 * final_row + 4 * final_column + final_facing
+    log(f"RESULTING PASSWORD is {password}.")
+
+    if password != sample_answer_a:
+        raise Exception("MISMATCH")
 
     log(f"No fails.")
 
