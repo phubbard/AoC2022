@@ -15,12 +15,14 @@ sample_map="""
         .#......
         ......#.
 """
-sample_moves='10R5L5R10L4R5L5'
+sample_moves = '10R5L5R10L4R5L5'
+# FIXME - ends with missing direction
 pattern = r'(\d+)(\w)'
 matcher = re.compile(pattern)
-OPEN=1
-WALL=2
-NULL=0
+
+OPEN = 1
+WALL = 2
+NULL = 0
 
 def arrays(row, column, fill=0):
     # Create and allocate a 2D array. Copypasta from SO with edits.
@@ -69,7 +71,18 @@ def find_start(map):
 
 
 def move(direction, count, map, start_row, start_col):
-    return start_row, start_col
+    num_rows = map.shape[0]
+    num_cols = map.shape[1]
+    moves = []
+
+    for _ in range(count):
+        match direction:
+            case 'L':
+                new_row = (start_col - 1) % num_cols
+
+            case 'R':
+            case 'U':
+            case 'D':
 
 
 if __name__ == '__main__':
