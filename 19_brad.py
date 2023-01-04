@@ -183,8 +183,8 @@ class Fact:
         minutes = self.FACT_MINUTE
         next_total_ruple = self.FACT_RESOURCE_TOTAL_RUPLE
         while True:
-            if minutes > 300: raise Exception("FATAL")
-            log(f" Checking if {str(next_total_ruple)} engulfs {str(resource_threshold_ruple)}")
+            if minutes > 300: raise Exception("FATAL GROISSS")
+            # log(f" Checking if {str(next_total_ruple)} engulfs {str(resource_threshold_ruple)}")
             if next_total_ruple.ruple_engulfs(resource_threshold_ruple):
                 break
             minutes += 1
@@ -195,10 +195,10 @@ class Fact:
                     minutes,
                     self.FACT_ROBOT_RUPLE.ruple_add(delta_robot_ruple),
                     next_total_ruple.ruple_minus(resource_threshold_ruple),
-                    delta_robot_ruple)
+                    self.FACT_RESOURCE_ADDITION_RUPLE.ruple_add(delta_robot_ruple))
 
     def __str__(self):
-        return f"[FACT minute:{self.FACT_MINUTE} with robots {self.FACT_ROBOT_RUPLE} and resources {self.FACT_RESOURCE_TOTAL_RUPLE} ]"
+        return f"[FACT minute:{self.FACT_MINUTE} with robots {self.FACT_ROBOT_RUPLE} and resources {self.FACT_RESOURCE_TOTAL_RUPLE} from {self.FACT_GENOME} ]"
 
 
 class Genome:
@@ -245,14 +245,17 @@ class Oracle:
     def oracle_grow(self):
         new_active = []
         for fact in self.__active:
-            self.__best = max(self.__best, fact.FACT_RESOURCE_TOTAL_RUPLE.RUPLE_GEODE)
             if fact.FACT_MINUTE > self.ORACLE_TERMINAL_MINUTE: continue
+            if self.__best <  fact.FACT_RESOURCE_TOTAL_RUPLE.RUPLE_GEODE:
+                self.__best = fact.FACT_RESOURCE_TOTAL_RUPLE.RUPLE_GEODE
+                log(f"A new best is -> {fact}")
             for action in self.ALL_ACTIONS:
                 new_genome        = fact.FACT_GENOME.genome_factory(action)
                 delta_robot_ruple = self.__robot_deltas[action]
                 next_cost_ruple   = self.__cost_deltas[action]
 
-                log(f"  {new_genome}  {delta_robot_ruple}  {next_cost_ruple}")
+                # log(f"{new_genome}  {delta_robot_ruple}  {next_cost_ruple}")
+                # log(f"  starting with -> {fact}")
 
                 next_fact         = fact.fact_feed_forward(new_genome,
                                                            next_cost_ruple,
@@ -260,7 +263,7 @@ class Oracle:
                 if next_fact is None: continue
                 new_active.append(next_fact)
         self.__active = new_active
-        return len(self.__active) > 0
+        return len(self.__active), self.__best
 
 
 if __name__ == '__main__':
@@ -273,8 +276,11 @@ if __name__ == '__main__':
 
     for blueprint in [data[0]]:
         oracle = Oracle(blueprint, 24)
-        while oracle.oracle_grow():
-            pass
+        loops = 0
+        while True:
+            active_count, best_so_far = oracle.oracle_grow()
+            loops += 1
+            log(f"{loops=}: {best_so_far=} and {active_count=}")
 
     log(f"Its over")
 
