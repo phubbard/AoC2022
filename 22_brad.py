@@ -1,22 +1,10 @@
 
 import collections
 
-sample_data = """        ...#
-        .#..
-        #...
-        ....
-...#.......#
-........#...
-..#....#....
-..........#.
-        ...#....
-        .....#..
-        .#......
-        ......#.
 
-10R5L5R10L4R5L5
-"""
 sample_answer_a = 6032
+
+SAMPLE_DATAFILE = './data/22_sample.txt'
 DATAFILE = './data/22.txt'
 
 DIRECTION_NORTH = '*North*'
@@ -43,6 +31,13 @@ DIRECTIONS_LEFT = {
         DIRECTION_WEST:  DIRECTION_SOUTH,
     }
 
+DIRECTIONS_REVERSE = {
+        DIRECTION_NORTH: DIRECTION_SOUTH,
+        DIRECTION_EAST:  DIRECTION_WEST,
+        DIRECTION_SOUTH: DIRECTION_NORTH,
+        DIRECTION_WEST:  DIRECTION_EAST,
+    }
+
 DIRECTIONS_FACING = {
         DIRECTION_NORTH: 3,
         DIRECTION_EAST:  0,
@@ -59,6 +54,12 @@ def log(some_string):
     print(f"P22: {some_string}")
 
 
+class Warp:
+    def __init__(self, square, direction):
+        self.WARP_SQUARE    = square
+        self.WARP_DIRECTION = direction
+
+
 class Square:
     def __init__(self, row, column, is_open, is_wall):
         self.SQUARE_ROW     = row
@@ -67,17 +68,30 @@ class Square:
         self.SQUARE_IS_WALL = is_wall
 
         self.__directions = {}
+        self.__warps      = {}
+
 
     def square_connect(self, direction, square):
         self.__directions[direction] = square
 
+    def square_tunnel(self, leave_direction, square, new_direction):
+        self.__warps[leave_direction] = Warp(square, new_direction)
+
     def square_neighbor(self, direction):
         return self.__directions[direction]
+
+    def square_warp(self, direction):
+        warp = self.__warps.get(direction, None)
+        if warp is None:
+            # if no warp in specified direction, we just do the 2 space thing
+            return direction, self.square_neighbor(direction)
+        else:
+            # Otherwise take the warp which will change the direction as well
+            return warp.WARP_DIRECTION, warp.WARP_SQUARE
 
     def __str__(self):
         wall_string = " WALL" if self.SQUARE_IS_WALL else ""
         return f"({self.SQUARE_ROW}, {self.SQUARE_COLUMN}){wall_string}"
-
 
 
 class Grove:
@@ -209,6 +223,76 @@ class Instructions:
         return f"<INSTRUCTIONS {as_string} >"
 
 
+class Coordinate:
+    def __init__(self, a_tuple):
+        self.COORDINATE_ROW   = a_tuple[0]
+        self.COORDINATE_COL   = a_tuple[1]
+        self.COORDINATE_TUPLE = (self.COORDINATE_ROW,
+                                 self.COORDINATE_COL)
+
+    def __add__(self, other):
+        return Coordinate(self.COORDINATE_ROW + other.COORDINATE_ROW,
+                          self.COORDINATE_COL + other.COORDINATE_COL)
+
+    def __sub__(self, other):
+        return Coordinate(self.COORDINATE_ROW - other.COORDINATE_ROW,
+                          self.COORDINATE_COL - other.COORDINATE_COL)
+
+    def __eq__(self, other):
+        row = self.COORDINATE_ROW - other.COORDINATE_ROW
+        col = self.COORDINATE_COL - other.COORDINATE_COL
+        return row == 0 and col == 0
+
+    def planck_step(self, other):
+        row = self.COORDINATE_ROW - other.COORDINATE_ROW
+        col = self.COORDINATE_COL - other.COORDINATE_COL
+        if row > 0: row = +1
+        if row < 0: row = -1
+        if col > 0: col = +1
+        if col < 0: col = -1
+        return Coordinate(row, col)
+
+
+def generate_warps(grove,
+                   alpha_leave_direction,
+                   alpha_start_tuple,
+                   alpha_terminal_tuple,
+                   alpha_new_direction,
+                   beta_leave_direction,
+                   beta_start_tuple,
+                   beta_terminal_tuple,
+                   beta_new_direction):
+
+    alpha_start    = Coordinate(alpha_start_tuple)
+    alpha_terminal = Coordinate(alpha_terminal_tuple)
+
+    beta_start    = Coordinate(beta_start_tuple)
+    beta_terminal = Coordinate(beta_terminal_tuple)
+
+    alpha_stepper = alpha_start.planck_step(alpha_terminal)
+    beta_stepper  = beta_start.planck_step(beta_terminal)
+
+    alpha_working = alpha_start
+    beta_working  = beta_start
+    while not is_finished:
+        alpha_square = grove.grove_locate_square(*alpha_working.COORDINATE_TUPLE)
+        beta_square  = grove.grove_locate_square(*beta_working.COORDINATE_TUPLE)
+
+        alpha_square.square_tunnel(alpha_leave_direction, beta_square, alpha_new_direction)
+        beta_square.square_tunnel(beta_leave_direction, alpha_square, beta_new_direction)
+
+        alpha_finished = (alpha_working == alpha_terminal)
+        beta_finished  = (beta_working  == beta_terminal)
+
+        if alpha_finished != beta_finished: raise Exception("Woe is me")
+
+        alpha_working = alpha_working + alpha_stepper
+        beta_working  = beta_working  + beta_stepper
+
+        is_finished == alpha_finished and beta_finished
+    return
+
+
 def parse_data(data_string, grove):
     do_instructions = False
     instructions    = None
@@ -224,8 +308,10 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    if False:
-        pure_input        = sample_data
+    do_sample = True
+
+    if do_sample:
+        pure_input        = open(SAMPLE_DATAFILE, 'r').read()
         expected_answer_a = sample_answer_a
         grove             = Grove(20, 20)
     else:
@@ -236,6 +322,33 @@ if __name__ == '__main__':
     instructions = parse_data(pure_input, grove)
 
     grove.grove_seal()
+
+    if do_sample:
+        # Warps for sample data
+        generate_warps(grove,
+                       DIRECTION_NORTH,  (5,  5),  (5,  8), DIRECTION_EAST,
+                       DIRECTION_WEST,   (1,  9),  (4,  9), DIRECTION_SOUTH)
+        generate_warps(grove,
+                       DIRECTION_NORTH,  (5,  1),  (5,  4), DIRECTION_SOUTH,
+                       DIRECTION_NORTH,  (1, 12),  (1,  9), DIRECTION_SOUTH)
+        generate_warps(grove,
+                       DIRECTION_WEST,   (5,  1),  (8,  1), DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (12, 16), (12, 13), DIRECTION_EAST)
+        generate_warps(grove,
+                       DIRECTION_SOUTH,  (8,  1),  (8,  4), DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (12, 12), (12,  9), DIRECTION_NORTH)
+        generate_warps(grove,
+                       DIRECTION_WEST,   (5,  1),  (8, 1),  DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (12, 16), (12, 13), DIRECTION_EAST)
+        generate_warps(grove,
+                       DIRECTION_EAST,   (9, 16), (12, 16), DIRECTION_WEST,
+                       DIRECTION_WEST,   (4, 12),  (1, 12), DIRECTION_EAST)
+        generate_warps(grove,
+                       DIRECTION_NORTH,  (9, 13),  (9, 16), DIRECTION_WEST,
+                       DIRECTION_EAST,   (8, 12),  (5, 12), DIRECTION_SOUTH)
+
+    else:
+        # Warps for real data
 
     def _do_test_sequence():
         log(f"Starting test...")
@@ -275,13 +388,14 @@ if __name__ == '__main__':
             step_count = step.STEP_NUMBER_STEPS
             log(f"Starting {step_count} steps in {current_direction=}")
             for _ in range(step_count):
-                next_square = current_square.square_neighbor(current_direction)
+                next_direction, next_square = current_square.square_warp(current_direction)
                 if next_square.SQUARE_IS_WALL:
                     log(f"Stuck since next is {str(next_square)}")
                     continue
                 else:
                     log(f"Moving to {str(next_square)}")
                     current_square = next_square
+                    current_direction = next_direction
 
     final_facing = DIRECTIONS_FACING[current_direction]
     final_row    = current_square.SQUARE_ROW
