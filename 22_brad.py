@@ -1,22 +1,10 @@
 
 import collections
 
-sample_data = """        ...#
-        .#..
-        #...
-        ....
-...#.......#
-........#...
-..#....#....
-..........#.
-        ...#....
-        .....#..
-        .#......
-        ......#.
 
-10R5L5R10L4R5L5
-"""
 sample_answer_a = 6032
+
+SAMPLE_DATAFILE = './data/22_sample.txt'
 DATAFILE = './data/22.txt'
 
 DIRECTION_NORTH = '*North*'
@@ -59,6 +47,12 @@ def log(some_string):
     print(f"P22: {some_string}")
 
 
+class Warp:
+    def __init__(self, square, direction):
+        self.WARP_SQUARE    = square
+        self.WARP_DIRECTION = direction
+
+
 class Square:
     def __init__(self, row, column, is_open, is_wall):
         self.SQUARE_ROW     = row
@@ -67,6 +61,8 @@ class Square:
         self.SQUARE_IS_WALL = is_wall
 
         self.__directions = {}
+        self.__warps      = {}
+        
 
     def square_connect(self, direction, square):
         self.__directions[direction] = square
@@ -74,10 +70,18 @@ class Square:
     def square_neighbor(self, direction):
         return self.__directions[direction]
 
+    def square_warp(self, direction):
+        warp = self.__warps.get(direction, None)
+        if warp is None:
+            # if no warp in specified direction, we just do the 2 space thing
+            return direction, self.square_neighbor(direction)
+        else:
+            # Otherwise take the warp which will change the direction as well
+            return warp.WARP_DIRECTION, warp.WARP_SQUARE
+
     def __str__(self):
         wall_string = " WALL" if self.SQUARE_IS_WALL else ""
         return f"({self.SQUARE_ROW}, {self.SQUARE_COLUMN}){wall_string}"
-
 
 
 class Grove:
@@ -209,6 +213,9 @@ class Instructions:
         return f"<INSTRUCTIONS {as_string} >"
 
 
+
+
+
 def parse_data(data_string, grove):
     do_instructions = False
     instructions    = None
@@ -224,8 +231,8 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    if False:
-        pure_input        = sample_data
+    if True:
+        pure_input        = open(SAMPLE_DATAFILE, 'r').read()
         expected_answer_a = sample_answer_a
         grove             = Grove(20, 20)
     else:
