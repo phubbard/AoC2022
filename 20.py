@@ -1,4 +1,5 @@
 
+from copy import deepcopy
 from collections import deque
 
 sample_input = """1
@@ -9,49 +10,51 @@ sample_input = """1
 0
 4"""
 DATAFILE = './data/20.txt'
-original_sequence = [int(x.strip()) for x in sample_input.split('\n')]
-data = [int(x.strip()) for x in open(DATAFILE, 'r').readlines()]
+# Data as deques of (index, value) pairs
+original_sample = list(map(int, sample_input.split('\n')))
+full_data = list(map(int, open(DATAFILE, 'r').readlines()))
+
+# part two
+decryption_key = 811589153
 
 
-def deque_remove(input_data: list, index: int) -> deque:
-    # Return a deque with the element at index dropped
-    rc = deque(input_data[0:index])
-    rc.extend(input_data[index + 1:])
-    return rc
+def mix(enumerated: deque):
+    """ Perform the mix algorithm on our enumerated deque of numbers """
+    # Move each number once, using original indexes
+    # We can't iterate over actual values from enumerated, since we'll be modifying it as we go
+    for original_index in range(len(enumerated)):
+        while enumerated[0][0] != original_index:  # bring our required element to the left end
+            enumerated.rotate(-1)
+
+        current_pair = enumerated.popleft()
+        shift = current_pair[1] % len(enumerated)  # retrieve the value to move by; allow for wrapping over
+        enumerated.rotate(-shift)  # rotate everything by n positions
+        enumerated.append(current_pair)  # and now reinsert our pair at the end
+
+    return enumerated
 
 
-def deque_mix(sequence: list):
-    rc = deque(sequence)
-    for index, value in enumerate(sequence):
-        current_index = rc.index(value)
-        new_index = (current_index + value) % len(sequence)
-        if value < 0:
-            new_index -= 1
-        rc = deque_remove(list(rc), current_index)
-        rc.insert(new_index, value)
-    return rc
-
-
-def orchestrate():
-    mixed_sequence = deque_mix(original_sequence)
-    coordinate_sum = 0
-    zero_index = mixed_sequence.index(0)
-    for index in [1000, 2000, 3000]:
-        value_index = (zero_index + index) % len(mixed_sequence)
-        temp = mixed_sequence[value_index]
-        coordinate_sum += temp
-    tfstr = 'correct' if coordinate_sum == 3 else 'incorrect'
-    print(f'sample data {coordinate_sum=} {tfstr}')
-
-    mixed_sequence = deque_mix(data)
-    coordinate_sum = 0
-    zero_index = mixed_sequence.index(0)
-    for index in [1000, 2000, 3000]:
-        value_index = (zero_index + index) % len(mixed_sequence)
-        temp = mixed_sequence[value_index]
-        coordinate_sum += temp
-    print(f'Data {coordinate_sum=}')
+def value_at_n(values: list, n: int):
+    """ Determine the value at position n in our list.
+    If index is beyond the end, then wrap the values as many times as required. """
+    digit_posn = (values.index(0)+n) % len(values)
+    return values[digit_posn]
 
 
 if __name__ == '__main__':
-    orchestrate()
+    # deque of tuples of (original index, value
+    enumerated = deque(list(enumerate(full_data.copy())))
+    mixed_sequence = mix(enumerated)
+    coordinate_sum = 0
+    for index in [1000, 2000, 3000]:
+        coordinate_sum += value_at_n([val[1] for val in enumerated], index)
+    print(f"{coordinate_sum=}")
+
+    p2_data = [x * decryption_key for x in full_data]
+    enumerated = deque(list(enumerate(p2_data)))
+    for _ in range(10):
+        enumerated = mix(enumerated)
+    coordinate_sum = 0
+    for index in [1000, 2000, 3000]:
+        coordinate_sum += value_at_n([val[1] for val in enumerated], index)
+    print(f"part two {coordinate_sum=}")
