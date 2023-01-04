@@ -29,6 +29,20 @@ DIRECTIONS_ALL = (DIRECTION_NORTH,
                   DIRECTION_EAST,
                   DIRECTION_WEST)
 
+DIRECTIONS_RIGHT = {
+        DIRECTION_NORTH: DIRECTION_EAST,
+        DIRECTION_EAST:  DIRECTION_SOUTH,
+        DIRECTION_SOUTH: DIRECTION_WEST,
+        DIRECTION_WEST:  DIRECTION_NORTH,
+    }
+
+DIRECTIONS_LEFT = {
+        DIRECTION_NORTH: DIRECTION_WEST,
+        DIRECTION_EAST:  DIRECTION_NORTH,
+        DIRECTION_SOUTH: DIRECTION_EAST,
+        DIRECTION_WEST:  DIRECTION_SOUTH,
+    }
+
 SQUARE_NONE = ' '
 SQUARE_WALL = '#'
 SQUARE_OPEN = '.'
@@ -148,21 +162,58 @@ class Grove:
         pass
 
 
-class Directions:
-    def __init__(self, raw_string):
-        self.DIRECTIONS_RAW_STRING = raw_string
+class Step:
+    def __init__(self, new_direction=None, number_steps=None):
+        self.STEP_NEW_DIRECTION = new_direction
+        self.STEP_NUMBER_STEPS  = number_steps
+
+        log(f"CREATED STEP -> {str(self)}")
+
+    def __str__(self):
+        if self.STEP_NEW_DIRECTION: return f"TURN {self.STEP_NEW_DIRECTION}"
+        else:                       return f"STEP {self.STEP_NUMBER_STEPS}"
+
+
+class Instructions:
+    def __init__(self, raw_string, starting_direction):
+
+        direction = starting_direction
+        sequence = [Step(new_direction=direction)]
+
+        split_right = raw_string.split("R")
+        for right_index, right_segment in enumerate(split_right):
+            if right_index > 0:
+                direction = DIRECTIONS_RIGHT[direction]
+                sequence.append(Step(new_direction=direction))
+            split_left = right_segment.split("L")
+            for step_index, step_string in enumerate(split_left):
+                if step_index > 0:
+                    direction = DIRECTIONS_LEFT[direction]
+                    sequence.append(Step(new_direction=direction))
+                if len(step_string) > 0:
+                    sequence.append(Step(number_steps=int(step_string)))
+
+        self.INSTRUCTIONS_RAW      = raw_string
+        self.INSTRUCTIONS_SEQUENCE = tuple(sequence)
+
+    def __str__(self):
+        inner = [str(step) for step in self.INSTRUCTIONS_SEQUENCE]
+        as_string = ','.join(inner)
+        return f"<INSTRUCTIONS {as_string} >"
+
 
 
 def parse_data(data_string, grove):
-    do_directions = False
-    directions = None
+    do_instructions = False
+    instructions    = None
     stripes = data_string.split("\n")
     for stripe in stripes:
-        if do_directions:
-            directions = Directions(stripe)
+        if do_instructions:
+            instructions = Instructions(stripe, DIRECTION_EAST)
+            break
         else:
-            do_directions = grove.grove_build_add_stripe(stripe)
-    return directions
+            do_instructions = grove.grove_build_add_stripe(stripe)
+    return instructions
     
 
 if __name__ == '__main__':
@@ -176,7 +227,7 @@ if __name__ == '__main__':
         expected_answer_a = -1
         grove             = Grove(210, 210)
 
-    directions = parse_data(pure_input, grove)
+    instructions = parse_data(pure_input, grove)
 
     grove.grove_seal()
 
@@ -193,6 +244,8 @@ if __name__ == '__main__':
     for _ in range(walk):
         square = square.square_neighbor(direction)
         log(f"next: {str(square)}")
+
+    log(f"Instructions -> {str(instructions)}")
 
     log(f"No fails.")
 
