@@ -1,5 +1,6 @@
 anytree
 tqdm
 numpy==1.24.1
+sympy
 
 
