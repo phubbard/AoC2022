@@ -224,32 +224,34 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    if True:
+    if False:
         pure_input        = sample_data
         expected_answer_a = sample_answer_a
         grove             = Grove(20, 20)
     else:
         pure_input        = open(DATAFILE, 'r').read()
-        expected_answer_a = -1
+        expected_answer_a = 36518
         grove             = Grove(210, 210)
 
     instructions = parse_data(pure_input, grove)
 
     grove.grove_seal()
 
-    log(f"Starting test...")
-    square = grove.grove_locate_square(6, 8) # Wall South, Wall East
-    log(f"anchor: {str(square)}")
-    for direction in DIRECTIONS_ALL:
-        neighbor = square.square_neighbor(direction)
-        log(f"   {direction}: {str(neighbor)}")
+    def _do_test_sequence():
+        log(f"Starting test...")
+        square = grove.grove_locate_square(6, 8) # Wall South, Wall East
+        log(f"anchor: {str(square)}")
+        for direction in DIRECTIONS_ALL:
+            neighbor = square.square_neighbor(direction)
+            log(f"   {direction}: {str(neighbor)}")
 
-    walk = 20
-    direction = DIRECTION_EAST
-    log(f"Lets go {direction} {walk=} steps...")
-    for _ in range(walk):
-        square = square.square_neighbor(direction)
-        log(f"next: {str(square)}")
+        walk = 20
+        direction = DIRECTION_EAST
+        log(f"Lets go {direction} {walk=} steps...")
+        for _ in range(walk):
+            square = square.square_neighbor(direction)
+            log(f"next: {str(square)}")
+    # _do_test_sequence()
 
     log(f"Instructions -> {str(instructions)}")
 
@@ -287,7 +289,7 @@ if __name__ == '__main__':
     password     = 1000 * final_row + 4 * final_column + final_facing
     log(f"RESULTING PASSWORD is {password}.")
 
-    if password != sample_answer_a:
+    if password != expected_answer_a:
         raise Exception("MISMATCH")
 
     log(f"No fails.")
