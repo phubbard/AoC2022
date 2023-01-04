@@ -31,6 +31,13 @@ DIRECTIONS_LEFT = {
         DIRECTION_WEST:  DIRECTION_SOUTH,
     }
 
+DIRECTIONS_REVERSE = {
+        DIRECTION_NORTH: DIRECTION_SOUTH,
+        DIRECTION_EAST:  DIRECTION_WEST,
+        DIRECTION_SOUTH: DIRECTION_NORTH,
+        DIRECTION_WEST:  DIRECTION_EAST,
+    }
+
 DIRECTIONS_FACING = {
         DIRECTION_NORTH: 3,
         DIRECTION_EAST:  0,
@@ -62,10 +69,13 @@ class Square:
 
         self.__directions = {}
         self.__warps      = {}
-        
+
 
     def square_connect(self, direction, square):
         self.__directions[direction] = square
+
+    def square_tunnel(self, direction, square, new_direction):
+        self.__warps[direction] = Warp(square, new_direction)
 
     def square_neighbor(self, direction):
         return self.__directions[direction]
@@ -213,7 +223,14 @@ class Instructions:
         return f"<INSTRUCTIONS {as_string} >"
 
 
-
+def generate_warps(grove,
+                   alpha_row_start,        alpha_col_start,
+                   alpha_row_terminal,     alpha_col_terminal,
+                   alpha_to_beta_redirect,
+                   beta_row_start,         beta_col_start,
+                   beta_row_terminal,      beta_col_terminal,
+                   beta_to_alpha_redirect):
+    pass
 
 
 def parse_data(data_string, grove):
@@ -231,7 +248,9 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    if True:
+    do_sample = True
+
+    if do_sample:
         pure_input        = open(SAMPLE_DATAFILE, 'r').read()
         expected_answer_a = sample_answer_a
         grove             = Grove(20, 20)
@@ -243,6 +262,39 @@ if __name__ == '__main__':
     instructions = parse_data(pure_input, grove)
 
     grove.grove_seal()
+
+    if do_sample:
+        # Warps for sample data
+        generate_warps(grove,
+                       DIRECTION_NORTH,  (5,  5),  (5,  8), DIRECTION_EAST,
+                       DIRECTION_WEST,   (1,  9),  (4,  9), DIRECTION_SOUTH)
+        generate_warps(grove,
+                       DIRECTION_NORTH,  (5,  1),  (5,  4), DIRECTION_SOUTH,
+                       DIRECTION_NORTH,  (1, 12),  (1,  9), DIRECTION_SOUTH)
+        generate_warps(grove,
+                       DIRECTION_WEST,   (5,  1),  (8,  1), DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (12, 16), (12, 13), DIRECTION_EAST)
+
+
+        generate_warps(grove,
+                       DIRECTION_SOUTH,  (8,  1),  (8,  4), DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (12, 12), (12,  9), DIRECTION_NORTH)
+
+
+        generate_warps(grove,
+                       DIRECTION_start,  (5,  1),  (8, 1), DIRECTION_ending,
+                       DIRECTION_start, (12, 16), (12, 13), DIRECTION_ending)
+        generate_warps(grove,
+                       DIRECTION_start,  (9, 16), (12, 16), DIRECTION_ending,
+                       DIRECTION_start,  (4, 12),  (1, 12), DIRECTION_ending)
+        generate_warps(grove,
+                       DIRECTION_start,  (9, 16), (12, 16), DIRECTION_ending,
+                       DIRECTION_start,  (4, 12),  (1, 12), DIRECTION_ending)
+        generate_warps(grove,
+                       DIRECTION_start,  (9, 13),  (9, 16), DIRECTION_ending,
+                       DIRECTION_start,  (8, 12),  (5, 12), DIRECTION_ending)
+    else:
+        # Warps for real data
 
     def _do_test_sequence():
         log(f"Starting test...")
