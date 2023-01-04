@@ -81,14 +81,14 @@ class Grove:
 
         current_stripe = collections.OrderedDict()
 
-        log(f"Row:{self.__build_row}... -> {stripe}")
+        #log(f"Row:{self.__build_row}... -> {stripe}")
         for idx, char in enumerate(stripe):
             if stripe[idx] == SQUARE_NONE: continue
             column = idx + 1
             square = Square(self.__build_row, column, char == SQUARE_OPEN, char == SQUARE_WALL)
             current_stripe[column] = square
-            log(f"  at {self.__build_row} {column} saw {char}")
-        log(f"   and ends at at {column}.")
+            #log(f"  at {self.__build_row} {column} saw {char}")
+        #log(f"   and ends at at {column}.")
 
         self.__squares[self.__build_row] = current_stripe
         self.__build_row += 1
@@ -188,7 +188,7 @@ if __name__ == '__main__':
         log(f"   {direction}: {str(neighbor)}")
 
     walk = 20
-    direction = DIRECTION_SOUTH
+    direction = DIRECTION_EAST
     log(f"Lets go {direction} {walk=} steps...")
     for _ in range(walk):
         square = square.square_neighbor(direction)
