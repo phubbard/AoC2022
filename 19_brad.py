@@ -86,17 +86,196 @@ def orchestrate():
 if False:
     orchestrate()
 
+
 def log(some_string):
     print(f"P19: {some_string}")
+
+
+class Ruple:
+    def __init__(self, ore, clay, obsidian, geode):
+        self.RUPLE_ORE      = ore
+        self.RUPLE_CLAY     = clay
+        self.RUPLE_OBSIDIAN = obsidian
+        self.RUPLE_GEODE    = geode
+
+    def ruple_add(self, ruple_other):
+        rv = Ruple(self.RUPLE_ORE      + ruple_other.RUPLE_ORE,
+                   self.RUPLE_CLAY     + ruple_other.RUPLE_CLAY,
+                   self.RUPLE_OBSIDIAN + ruple_other.RUPLE_OBSIDIAN,
+                   self.RUPLE_GEODE    + ruple_other.RUPLE_GEODE)
+        return rv
+
+    def is_viable(self):
+        rv = True                      \
+            and rv.RUPLE_ORE      > 0  \
+            and rv.RUPLE_CLAY     > 0  \
+            and rv.RUPLE_OBSIDIAN > 0  \
+            and rv.RUPLE_GEODE    > 0
+        return rv
+
+    def ruple_minus(self, ruple_other):
+        rv = Ruple(self.RUPLE_ORE      - ruple_other.RUPLE_ORE,
+                   self.RUPLE_CLAY     - ruple_other.RUPLE_CLAY,
+                   self.RUPLE_OBSIDIAN - ruple_other.RUPLE_OBSIDIAN,
+                   self.RUPLE_GEODE    - ruple_other.RUPLE_GEODE)
+        return rv
+
+    def ruple_engulfs(self, ruple_other):
+        if self.RUPLE_ORE      < ruple_other.RUPLE_ORE:      return False
+        if self.RUPLE_CLAY     < ruple_other.RUPLE_CLAY:     return False
+        if self.RUPLE_OBSIDIAN < ruple_other.RUPLE_OBSIDIAN: return False
+        if self.RUPLE_GEODE    < ruple_other.RUPLE_GEODE:    return False
+        return True
+
+    def __str__(self):
+        return f"({self.RUPLE_ORE}, {self.RUPLE_CLAY}, {self.RUPLE_OBSIDIAN}, {self.RUPLE_GEODE})"
+
+# N,R,L,B,E
+
+
+
+
+#################
+#  Well this is a stall.  What next?  Lets journal on this.  
+#  
+#  So, right now I'm musing the optimization question of, what is the fastest I can crack
+#  N geodes in?  It is not clear to me that there's a strong relationship between N and N + 1
+#  in this treatment.  But there could be, and should be.  Pretty close, honestly.  The
+#  sequences ought not diverge too much.  Hmm but I don't have a good shuffle either, i.e. given
+#  a sequence, what is another set of similar sequences?  
+#  
+#  Okay, I'm going to anchor on a different problem.  Given a number of Geodes, what is the
+#  fastest way to get to that number?  Does that actually tell us anything?
+#
+#  Well it might...
+#  
+#  Okay I've second guessed that to smithereens.  Crud.  Okay, next thought, is there a 'similarity'
+#  between two different 'genomes' such that I can generate a permutation field against one and figure
+#  out if there are better things nearby?  Minimize secondary resources, maximize geodes.  Hmm, the
+#  gene permuters are... add a 'space' in the middle, remove a 'space',  add a creation, delete a
+#  creation.  How many are there likely to be?  How good is the fitness function?
+#  
+#  HAH, I like this one.  Picture the 'genome' as simply the ordered list of which robot to
+#  create next.  This leads directly to a number of resources at any given time.  Huh.  Highly
+#  dynamic.  Yep there it is.  
+#  
+
+ACTION_ORE      = 'ore'
+ACTION_CLAY     = 'clay'
+ACTION_OBSIDIAN = 'obsidian'
+ACTION_GEODE    = 'geode'
+
+class Fact:
+    def __init__(self, genome, minute, robot_ruple, resource_total_ruple, resource_addition_ruple):
+        self.FACT_GENOME                  = genome
+        self.FACT_MINUTE                  = minute
+        self.FACT_ROBOT_RUPLE             = robot_ruple
+        self.FACT_RESOURCE_TOTAL_RUPLE    = resource_total_ruple
+        self.FACT_RESOURCE_ADDITION_RUPLE = resource_addition_ruple
+
+    def fact_feed_forward(self, new_genome, resource_threshold_ruple, delta_robot_ruple):
+
+        # Cannot do anything if we never add these
+        if resource_threshold_ruple.RUPLE_CLAY     > 0 and self.FACT_RESOURCE_ADDITION_RUPLE.RUPLE_CLAY     == 0: return None
+        if resource_threshold_ruple.RUPLE_OBSIDIAN > 0 and self.FACT_RESOURCE_ADDITION_RUPLE.RUPLE_OBSIDIAN == 0: return None
+
+        # Addition will eventually enable changes
+        minutes = self.FACT_MINUTE
+        next_total_ruple = self.FACT_RESOURCE_TOTAL_RUPLE
+        while True:
+            if minutes > 300: raise Exception("FATAL")
+            log(f" Checking if {str(next_total_ruple)} engulfs {str(resource_threshold_ruple)}")
+            if next_total_ruple.ruple_engulfs(resource_threshold_ruple):
+                break
+            minutes += 1
+            next_total_ruple = next_total_ruple.ruple_add(self.FACT_RESOURCE_ADDITION_RUPLE)
+
+        # Return next
+        return Fact(new_genome,
+                    minutes,
+                    self.FACT_ROBOT_RUPLE.ruple_add(delta_robot_ruple),
+                    next_total_ruple.ruple_minus(resource_threshold_ruple),
+                    delta_robot_ruple)
+
+    def __str__(self):
+        return f"[FACT minute:{self.FACT_MINUTE} with robots {self.FACT_ROBOT_RUPLE} and resources {self.FACT_RESOURCE_TOTAL_RUPLE} ]"
+
+
+class Genome:
+    def __init__(self, decision_list):
+        self.GENOME_DECISION_LIST = [decision for decision in decision_list]
+
+    def genome_factory(self, next_action):
+        rv = [decision for decision in self.GENOME_DECISION_LIST]
+        rv.append(next_action)
+        return Genome(rv)
+
+    def __str__(self):
+        meat = '-'.join(self.GENOME_DECISION_LIST)
+        return f"(GENOME {meat})"
+
+
+class Oracle:
+
+    ALL_ACTIONS = [ ACTION_ORE, ACTION_CLAY, ACTION_OBSIDIAN, ACTION_GEODE ]
+
+    ZERO_RUPLE = Ruple(0, 0, 0, 0)
+    ORE_RUPLE  = Ruple(1, 0, 0, 0)
+
+    def __init__(self, blueprint, terminal_minute):
+        self.ORACLE_TERMINAL_MINUTE = terminal_minute
+
+        self.__robot_deltas = {
+            ACTION_ORE:      self.ORE_RUPLE,
+            ACTION_CLAY:     Ruple(0, 1, 0, 0),
+            ACTION_OBSIDIAN: Ruple(0, 0, 1, 0),
+            ACTION_GEODE:    Ruple(0, 0, 0, 1),
+            }
+
+        self.__cost_deltas = {
+            ACTION_ORE:      Ruple(blueprint.ore_cost, 0, 0, 0),
+            ACTION_CLAY:     Ruple(blueprint.clay_cost,0, 0, 0),
+            ACTION_OBSIDIAN: Ruple(blueprint.obsidian_cost[0], blueprint.obsidian_cost[1], 0, 0),
+            ACTION_GEODE:    Ruple(blueprint.obsidian_cost[0], 0, blueprint.obsidian_cost[1], 0),
+            }
+
+        self.__active = [Fact(Genome([]), 0, self.ORE_RUPLE, self.ZERO_RUPLE, self.ORE_RUPLE)]
+        self.__best   = 0
+
+    def oracle_grow(self):
+        new_active = []
+        for fact in self.__active:
+            self.__best = max(self.__best, fact.FACT_RESOURCE_TOTAL_RUPLE.RUPLE_GEODE)
+            if fact.FACT_MINUTE > self.ORACLE_TERMINAL_MINUTE: continue
+            for action in self.ALL_ACTIONS:
+                new_genome        = fact.FACT_GENOME.genome_factory(action)
+                delta_robot_ruple = self.__robot_deltas[action]
+                next_cost_ruple   = self.__cost_deltas[action]
+
+                log(f"  {new_genome}  {delta_robot_ruple}  {next_cost_ruple}")
+
+                next_fact         = fact.fact_feed_forward(new_genome,
+                                                           next_cost_ruple,
+                                                           delta_robot_ruple)
+                if next_fact is None: continue
+                new_active.append(next_fact)
+        self.__active = new_active
+        return len(self.__active) > 0
 
 
 if __name__ == '__main__':
     if True:
         data = parse_data(sample_input.split('\n'))
     else:
-        big_data = parse_data(open(DATAFILE, 'r'))
+        data = parse_data(open(DATAFILE, 'r'))
 
     log(f"Its on...")
+
+    for blueprint in [data[0]]:
+        oracle = Oracle(blueprint, 24)
+        while oracle.oracle_grow():
+            pass
+
     log(f"Its over")
 
 
