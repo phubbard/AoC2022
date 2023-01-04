@@ -20,14 +20,29 @@ sample_data = """
 sample_answer_a = 6032
 DATAFILE = './data/22.txt'
 
-DIRECTION_NORTH = 'n'
-DIRECTION_SOUTH = 's'
-DIRECTION_EAST  = 'e'
-DIRECTION_WEST  = 'w'
+DIRECTION_NORTH = '*North*'
+DIRECTION_SOUTH = '*South*'
+DIRECTION_EAST  = '*East*'
+DIRECTION_WEST  = '*West*'
+
+DIRECTIONS_ALL = (DIRECTION_NORTH,
+                  DIRECTION_SOUTH,
+                  DIRECTION_EAST,
+                  DIRECTION_WEST)
+
+SQUARE_NONE = ' '
+SQUARE_WALL = '#'
+SQUARE_OPEN = '.'
+
+
+def log(some_string):
+    print(f"P22: {some_string}")
 
 
 class Square:
-    def __init__(self, is_open, is_wall):
+    def __init__(self, row, column, is_open, is_wall):
+        self.SQUARE_ROW     = row
+        self.SQUARE_COLUMN  = column
         self.SQUARE_IS_OPEN = is_open
         self.SQUARE_IS_WALL = is_wall
 
@@ -36,21 +51,24 @@ class Square:
     def square_connect(self, direction, square):
         self.__directions[direction] = square
 
+    def square_neighbor(self, direction):
+        return self.__directions[direction]
 
-SQUARE_NONE = ' '
-SQUARE_WALL = '#'
-SQUARE_OPEN = '.'
+    def __str__(self):
+        wall_string = " WALL" if self.SQUARE_IS_WALL else ""
+        return f"({self.SQUARE_ROW}, {self.SQUARE_COLUMN}){wall_string}"
+
 
 
 class Grove:
-    def __init__(self):
+    def __init__(self, max_row, max_col):
         self.GROVE_MIN_ROW =   0
-        self.GROVE_MAX_ROW = 210
+        self.GROVE_MAX_ROW = max_row
 
         self.GROVE_MIN_COL =   0
-        self.GROVE_MAX_COL = 160
+        self.GROVE_MAX_COL = max_col
 
-        self.__build_row = 0
+        self.__build_row = 1
         self.__squares   = collections.OrderedDict()
 
     def grove_build_add_stripe(self, stripe):
@@ -59,15 +77,15 @@ class Grove:
         the direction string.
         """
 
-        if len(stripe.strip() == 0):
+        if len(stripe.strip()) == 0:
             return True
 
         current_stripe = collections.OrderedDict()
-        start_column = 0
+        start_column = 1
         while stripe[start_column] == SQUARE_NONE:
             start_column += 1
         for column, char in enumerate(stripe, start=start_column):
-            square = Square(char == SQUARE_OPEN, char == SQUARE_WALL)
+            square = Square(self.__build_row, column, char == SQUARE_OPEN, char == SQUARE_WALL)
             current_stripe[column] = square
 
         self.__squares[self.__build_row] = current_stripe
@@ -75,7 +93,7 @@ class Grove:
         return False
 
     def grove_locate_square(self, row, col):
-        stripe = self_squares.get(row, None)
+        stripe = self.__squares.get(row, None)
         if stripe is None: return None
         return stripe.get(col, None)
 
@@ -102,26 +120,26 @@ class Grove:
         """
 
         # WEST
-        first, prev = (None, None, )
         for row in range(self.GROVE_MIN_ROW, self.GROVE_MAX_ROW, 1):
+            first, prev = (None, None, )
             for col in range(self.GROVE_MIN_COL, self.GROVE_MAX_COL, 1):
-                first, prev = self.__grove_forge(DIRECTION_WEST, first, prev, row, col)
-
-        # EAST
-        first, prev = (None, None, )
-        for row in range(self.GROVE_MIN_ROW, self.GROVE_MAX_ROW, 1):
-            for col in range(self.GROVE_MAX_COL, self.GROVE_MIN_COL, -1):
                 first, prev = self.__grove_forge(DIRECTION_EAST, first, prev, row, col)
 
+        # EAST
+        for row in range(self.GROVE_MIN_ROW, self.GROVE_MAX_ROW, 1):
+            first, prev = (None, None, )
+            for col in range(self.GROVE_MAX_COL, self.GROVE_MIN_COL, -1):
+                first, prev = self.__grove_forge(DIRECTION_WEST, first, prev, row, col)
+
         # SOUTH
-        first, prev = (None, None, )
         for col in range(self.GROVE_MIN_COL, self.GROVE_MAX_COL, 1):
+            first, prev = (None, None, )
             for row in range(self.GROVE_MIN_ROW, self.GROVE_MAX_ROW, 1):
                 first, prev = self.__grove_forge(DIRECTION_SOUTH, first, prev, row, col)
 
         # NORTH
-        first, prev = (None, None, )
         for col in range(self.GROVE_MIN_COL, self.GROVE_MAX_COL, 1):
+            first, prev = (None, None, )
             for row in range(self.GROVE_MAX_ROW, self.GROVE_MIN_ROW, -1):
                 first, prev = self.__grove_forge(DIRECTION_NORTH, first, prev, row, col)
 
@@ -129,23 +147,52 @@ class Grove:
 
 
 class Directions:
-    def __init__(self, direction_string):
-        pass
+    def __init__(self, raw_string):
+        self.DIRECTIONS_RAW_STRING = raw_string
 
 
-def parse_data(data_string):
-    for line in data_string.strip().split("\n"):
-        pass
+def parse_data(data_string, grove):
+    do_directions = False
+    directions = None
+    stripes = data_string.strip().split("\n")
+    for stripe in stripes:
+        if do_directions:
+            directions = Directions(stripe)
+        else:
+            do_directions = grove.grove_build_add_stripe(stripe)
+    return directions
+    
 
 if __name__ == '__main__':
 
-    if False:
+    if True:
         pure_input        = sample_data
         expected_answer_a = sample_answer_a
+        grove             = Grove(20, 20)
     else:
         pure_input        = open(DATAFILE, 'r').read()
         expected_answer_a = -1
+        grove             = Grove(210, 210)
 
-    grove, directions = parse_data(pure_input)
+    directions = parse_data(pure_input, grove)
+
+    grove.grove_seal()
+
+    log(f"Starting test...")
+    square = grove.grove_locate_square(6, 8) # Wall South, Wall East
+    log(f"anchor: {str(square)}")
+    for direction in DIRECTIONS_ALL:
+        neighbor = square.square_neighbor(direction)
+        log(f"   {direction}: {str(neighbor)}")
+
+    walk = 20
+    direction = DIRECTION_SOUTH
+    log(f"Lets go {direction} {walk=} steps...")
+    for _ in range(walk):
+        square = square.square_neighbor(direction)
+        log(f"next: {str(square)}")
+
+    raise Exception("Deal with wrong west")
+
 
 
