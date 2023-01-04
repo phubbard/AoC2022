@@ -1,3 +1,7 @@
+import sympy
+
+human = sympy.Symbol('human')
+
 def ldbh(): return svzt() + qdvz()
 def bngr(): return 12
 def whrt(): return 7
@@ -297,7 +301,7 @@ def psft(): return nwgm() * vlzq()
 def twqn(): return ffpj() * rgww()
 def ddcm(): return 5
 def fscf(): return 2
-def root(): return jhpn() + jmsg()
+def root(): return jhpn() - jmsg()
 def lrdw(): return rjpp() * dbsb()
 def qjcv(): return ntmf() + jsgc()
 def llhp(): return nqsg() * zqwd()
@@ -2106,7 +2110,7 @@ def zzjh(): return 2
 def vplq(): return jmrm() + jtcn()
 def nfwz(): return vjql() * gnng()
 def zsjw(): return qvdc() + blrg()
-def humn(): return 4140
+def humn(): return human
 def tdmp(): return tgvm() / hghb()
 def vcww(): return 1
 def bvfd(): return 2
@@ -2911,4 +2915,7 @@ def dqqz(): return nhhv() * pnhs()
 def sjjh(): return szsc() * jzzf()
 def whhj(): return cgtw() + tfht()
 def bchl(): return 19
-print (root())
+
+answer = sympy.solveset(root(), human)
+
+print (answer)

@@ -17,9 +17,17 @@ hmdt: 32"""
 sample_answer = 152
 DATAFILE = './data/21.txt'
 
+
+
 def parse_data(data_lines):
+    myvar = "human"
+    myans = "answer"
     lines = data_lines.strip().split("\n")
     out_lines = []
+    out_lines += ["import sympy"]
+    out_lines += [""]
+    out_lines += [f"human = sympy.Symbol('{myvar}')"]
+    out_lines += [""]
 
     for line in lines:
         splitted = line.split(": ")
@@ -30,6 +38,10 @@ def parse_data(data_lines):
 
         if False:
             pass
+        elif monkey == 'humn':
+            out_lines += [ f"def humn(): return {myvar}" ]
+        elif monkey == 'root':
+            out_lines += [ f"def {monkey}(): return {rest_split[0]}() - {rest_split[2]}()" ]
         elif len(rest_split) == 1:
             out_lines += [ f"def {monkey}(): return {rest}" ]
         elif len(rest_split) == 3:
@@ -37,7 +49,10 @@ def parse_data(data_lines):
         else:
             out_lines += [ f"raise Exception('ddd')"]
 
-    out_lines += [ "print (root())"]
+    out_lines += [ ""]
+    out_lines += [f"{myans} = sympy.solveset(root(), {myvar})"]
+    out_lines += [ ""]
+    out_lines += [f"print ({myans})"]
     return out_lines
 
 
