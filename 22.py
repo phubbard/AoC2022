@@ -70,19 +70,75 @@ def find_start(map):
     return None, None
 
 
-def move(direction, count, map, start_row, start_col):
-    num_rows = map.shape[0]
-    num_cols = map.shape[1]
+def find_open(game_map, row, col, direction):
+    # if we're moving right and need the next open cell, its on the left edge
+    # TODO What if left edge is a wall?
+    match direction:
+        case 'L':
+            for idx in range(game_map.shape[1] - 1, col, -1):
+                if game_map[row][idx] == OPEN:
+                    return row, idx
+        case 'R':
+            for idx in range(col):
+                if game_map[row][idx] == OPEN:
+                    return row, idx
+        case 'U':
+            for idx in range(game_map.shape[0], 0, -1):
+                if game_map[idx][col] == OPEN:
+                    return idx, col
+        case 'D':
+            for idx in range(row):
+                if game_map[idx][col] == OPEN:
+                    return idx, col
+
+
+def move(direction, count, gs_map, start_row, start_col):
+    num_rows = gs_map.shape[0]
+    num_cols = gs_map.shape[1]
     moves = []
 
-    for _ in range(count):
-        match direction:
-            case 'L':
-                new_row = (start_col - 1) % num_cols
+    new_col = start_col
+    new_row = start_row
+    for _ in range(int(count)):
+        if direction == 'L' or direction == 'R':
+            increment = 1 if direction == 'R' else -1
+            temp = new_col
+            new_col = (new_col + increment) % num_cols
+            if gs_map[new_row][new_col] == OPEN:
+                moves.append(direction)
+                continue
+            if gs_map[new_row][new_col] == WALL:
+                new_col = temp
+                break
+            if gs_map[new_row][new_col] == NULL:
+                rc = find_open(gs_map, new_row, temp, direction)
+                if not rc:
+                    new_col = temp
+                    break
+                else:
+                    new_col = rc[1]
+                    continue
 
-            case 'R':
-            case 'U':
-            case 'D':
+        if direction == 'D' or direction == 'U':
+            increment = 1 if direction == 'D' else -1
+            temp = new_row
+            new_row = (new_row + increment) % num_rows
+            if gs_map[new_row][new_col] == OPEN:
+                moves.append(direction)
+                continue
+            if gs_map[new_row][new_col] == WALL:
+                new_row = temp
+                break
+            if gs_map[new_row][new_col] == NULL:
+                rc = find_open(gs_map, temp, new_col, direction)
+                if not rc:
+                    new_row = temp
+                    break
+                new_row = rc[0]
+                continue
+
+    print(f"{moves=} {new_row=} {new_col=}")
+    return new_row, new_col
 
 
 if __name__ == '__main__':
@@ -90,6 +146,6 @@ if __name__ == '__main__':
     directions = parse_directions(sample_moves)
     row, col = find_start(game_map)
     for step in directions:
-        row, col = move(step[0], step[1], game_map, row, col)
+        row, col = move(step[1], step[0], game_map, row, col)
 
     print(f"{row=} {col=} {len(directions)=}")
