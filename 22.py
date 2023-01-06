@@ -163,6 +163,7 @@ def move(facing, count, gs_map, start_row, start_col):
     num_cols = gs_map.shape[1]
     move_count = 0
     end_reason = None
+    wrap_around = False
 
     new_col = start_col
     new_row = start_row
@@ -187,6 +188,7 @@ def move(facing, count, gs_map, start_row, start_col):
                 else:
                     new_col = rc[1]
                     move_count += 1
+                    wrap_around = True
                     continue
 
         if facing == 'D' or facing == 'U':
@@ -208,16 +210,17 @@ def move(facing, count, gs_map, start_row, start_col):
                     break
                 new_row = rc[0]
                 move_count += 1
+                wrap_around = True
                 continue
     if move_count != count:
-        print(f"{move_count} {facing} out of {count} moves, {end_reason=}")
+        print(f"{move_count} {facing} out of {count} moves, {end_reason=}, {wrap_around=}")
     else:
-        print(f'Moved {count} {facing}')
+        print(f'Moved {count} {facing}, {wrap_around=}')
     return new_row, new_col
 
 
 if __name__ == '__main__':
-    if True:
+    if False:
         tokens = sample.split('\n\n')
     else:
         tokens = open(DATAFILE).read().split('\n\n')
