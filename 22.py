@@ -34,7 +34,7 @@ def make_2d_array(num_rows, num_cols, fill=0):
 
 
 def clean_data_lines(data_lines):
-    # Blank lines throw off the parsing and indexing
+    # Blank lines throw off the parsing and indexing; this drops them
     return [x for x in data_lines if len(x) > 0]
 
 
@@ -44,8 +44,6 @@ def parse_map(data_lines):
     rc = make_2d_array(num_rows, num_cols)
 
     for row_idx, value in enumerate(data_lines):
-        if len(value) == 0:
-            continue
         for col_idx, char in enumerate(value):
             temp = None
             if char == ' ':
@@ -65,30 +63,30 @@ def parse_directions(move_str):
     # Special case - last two are numbers - full data
     ending_characters = move_str[-2:]
     if move_str[-2].isdigit() and move_str[-1].isdigit():
+        assert(move_str[-3].isalpha())
         tuples.append((ending_characters, None))
     # In sample data, single digit numeric last character
     elif move_str[-1].isdigit():
+        assert(move_str[-2].isalpha())
         tuples.append((move_str[-1], None))
-    else:
-        print("WARNING no trailing move found in directions")
 
     # Validate and convert to ints from ascii
     rc = [(int(x[0]), x[1]) for x in tuples]
     return rc
 
 
-def find_start(map):
+def find_start(game_map):
     # Return row, col for the starting point - leftmost top edge
     starting_row = 0
-    for col in range(map.shape[1]):
-        if map[starting_row][col] == OPEN:
-            return starting_row, col, 'R'
+    for col_idx in range(game_map.shape[1]):
+        if game_map[starting_row][col_idx] == OPEN:
+            return starting_row, col_idx, 'R'
 
-    return None, None
+    assert False
 
 
 def wrap_around_move(game_map, row, col, facing):
-    # if we're moving right and need the next open cell, it's on the left edge
+    # if we're moving right and need the next open cell, it's on the left edge. Etc.
     # Returns row, col or None if wall
     start = 0
     loop_step = 1
