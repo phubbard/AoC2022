@@ -145,16 +145,17 @@ def test_calc_password():
 
 
 def move(facing, count, game_map, start_row, start_col):
+    # TODO idea - treat both rows and columns as 1-D list
     new_row = start_row
     new_col = start_col
 
     # What is the row, col increment for each facing?
-    in_lookup = {'L': (-1, 0), 'R': (1, 0), 'D': (0, 1), 'U': (0, -1)}
+    in_lookup = {'L': (0, -1), 'R': (0, 1), 'D': (1, 0), 'U': (-1, 0)}
 
     if facing in ['L', 'R']:
         for idx in range(count):
             temp = new_col
-            new_col = (new_col + in_lookup[facing][0]) % game_map.shape[1]
+            new_col = (new_col + in_lookup[facing][1]) % game_map.shape[1]
             if game_map[start_row][new_col] == WALL:
                 new_col = temp
                 break
@@ -169,7 +170,7 @@ def move(facing, count, game_map, start_row, start_col):
     else:  # Up/down
         for idx in range(count):
             temp = new_row
-            new_row = (new_row + in_lookup[facing][1]) % game_map.shape[0]
+            new_row = (new_row + in_lookup[facing][0]) % game_map.shape[0]
             if game_map[new_row][start_col] == WALL:
                 new_row = temp
                 break
