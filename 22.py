@@ -1,7 +1,7 @@
 import re
 import numpy as np
 
-sample_map="""
+sample= """
         ...#
         .#..
         #...
@@ -14,9 +14,12 @@ sample_map="""
         .....#..
         .#......
         ......#.
-"""
-sample_moves = '10R5L5R10L4R5L5'
-# FIXME - ends with missing direction
+
+10R5L5R10L4R5L5"""
+
+DATAFILE = "./data/22.txt"
+
+# NB - ends with missing direction - see parser for special case handling
 pattern = r'(\d+)(\w)'
 matcher = re.compile(pattern)
 
@@ -57,14 +60,29 @@ def parse_map(data_lines):
 
 
 def parse_directions(move_str):
-    tuples =  matcher.findall(move_str)
-    ending_characters = move_str[-2:]
+    # The heavy lifting only takes one call
+    tuples = matcher.findall(move_str)
+
     # Special case - last two are numbers - full data
+    ending_characters = move_str[-2:]
     if move_str[-2].isdigit() and move_str[-1].isdigit():
-        tuples.append((None, ending_characters))
+        tuples.append((ending_characters, None))
+    # In sample data, single digit numeric last character
     elif move_str[-1].isdigit():
         tuples.append((move_str[-1], None))
-    return tuples
+    else:
+        print("WARNING no trailing move found in directions")
+
+    # Validate and convert to ints
+    rc = []
+    for idx, value in enumerate(tuples):
+        try:
+            temp = int(value[0])
+            rc.append((temp, value[1],))
+        except:
+            print(f'Error parsing {value=} at {idx=}')
+
+    return rc
 
 
 def find_start(map):
@@ -96,7 +114,7 @@ def find_open(game_map, row, col, facing):
                 if game_map[row][idx] == WALL:
                     return
         case 'U':
-            for idx in range(game_map.shape[0], 0, -1):
+            for idx in range(game_map.shape[0] - 1, 0, -1):
                 if game_map[idx][col] == OPEN:
                     return idx, col
                 if game_map[idx][col] == WALL:
@@ -143,7 +161,7 @@ def test_calc_password():
 def move(facing, count, gs_map, start_row, start_col):
     num_rows = gs_map.shape[0]
     num_cols = gs_map.shape[1]
-    moves = []
+    move_count = 0
     end_reason = None
 
     new_col = start_col
@@ -154,7 +172,7 @@ def move(facing, count, gs_map, start_row, start_col):
             temp = new_col
             new_col = (new_col + increment) % num_cols
             if gs_map[new_row][new_col] == OPEN:
-                moves.append(facing)
+                move_count += 1
                 continue
             if gs_map[new_row][new_col] == WALL:
                 new_col = temp
@@ -168,6 +186,7 @@ def move(facing, count, gs_map, start_row, start_col):
                     break
                 else:
                     new_col = rc[1]
+                    move_count += 1
                     continue
 
         if facing == 'D' or facing == 'U':
@@ -175,7 +194,7 @@ def move(facing, count, gs_map, start_row, start_col):
             temp = new_row
             new_row = (new_row + increment) % num_rows
             if gs_map[new_row][new_col] == OPEN:
-                moves.append(facing)
+                move_count += 1
                 continue
             if gs_map[new_row][new_col] == WALL:
                 new_row = temp
@@ -188,15 +207,23 @@ def move(facing, count, gs_map, start_row, start_col):
                     end_reason = 'Wall'
                     break
                 new_row = rc[0]
+                move_count += 1
                 continue
-
-    print(f"{moves} {len(moves)} out of {count} moves, {end_reason=}")
+    if move_count != count:
+        print(f"{move_count} {facing} out of {count} moves, {end_reason=}")
+    else:
+        print(f'Moved {count} {facing}')
     return new_row, new_col
 
 
 if __name__ == '__main__':
-    game_map = parse_map(clean_data_lines(sample_map.split(('\n'))))
-    directions = parse_directions(sample_moves)
+    if True:
+        tokens = sample.split('\n\n')
+    else:
+        tokens = open(DATAFILE).read().split('\n\n')
+
+    game_map = parse_map(clean_data_lines(tokens[0].split(('\n'))))
+    directions = parse_directions(tokens[1].strip())
     row, col, facing = find_start(game_map)
     for step in directions:
         print(f"Starting {row=} {col=} {facing=} {step=}")
