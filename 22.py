@@ -1,7 +1,7 @@
 import re
 import numpy as np
 
-sample= """
+sample = """
         ...#
         .#..
         #...
@@ -28,9 +28,9 @@ WALL = 2
 NULL = 0
 
 
-def arrays(row, column, fill=0):
+def make_2d_array(num_rows, num_cols, fill=0):
     # Create and allocate a 2D array. Copypasta from SO with edits.
-    return [[fill]*column for i in range(row)]
+    return [[fill] * num_cols for _ in range(num_rows)]
 
 
 def clean_data_lines(data_lines):
@@ -41,13 +41,12 @@ def clean_data_lines(data_lines):
 def parse_map(data_lines):
     num_rows = len(data_lines)
     num_cols = max([len(x) for x in data_lines])
-    rc = arrays(num_rows, num_cols)
-    # rc = np.zeros((num_rows, num_cols), dtype=np.int16)
+    rc = make_2d_array(num_rows, num_cols)
 
-    for row_idx, row in enumerate(data_lines):
-        if len(row) == 0:
+    for row_idx, value in enumerate(data_lines):
+        if len(value) == 0:
             continue
-        for col_idx, char in enumerate(row):
+        for col_idx, char in enumerate(value):
             temp = None
             if char == ' ':
                 temp = NULL
@@ -73,61 +72,59 @@ def parse_directions(move_str):
     else:
         print("WARNING no trailing move found in directions")
 
-    # Validate and convert to ints
-    rc = []
-    for idx, value in enumerate(tuples):
-        try:
-            temp = int(value[0])
-            rc.append((temp, value[1],))
-        except:
-            print(f'Error parsing {value=} at {idx=}')
-
+    # Validate and convert to ints from ascii
+    rc = [(int(x[0]), x[1]) for x in tuples]
     return rc
 
 
 def find_start(map):
     # Return row, col for the starting point - leftmost top edge
-    row = 0
+    starting_row = 0
     for col in range(map.shape[1]):
-        if map[row][col] == OPEN:
-            return row, col, 'R'
+        if map[starting_row][col] == OPEN:
+            return starting_row, col, 'R'
 
     return None, None
 
 
-def find_open(game_map, row, col, facing):
-    # if we're moving right and need the next open cell, its on the left edge
-    # N.B. Only called for wraparound.
+def wrap_around_move(game_map, row, col, facing):
+    # if we're moving right and need the next open cell, it's on the left edge
     # Returns row, col or None if wall
-    match facing:
-        case 'L':
-            for idx in range(game_map.shape[1] - 1, col, -1):
-                if game_map[row][idx] == OPEN:
-                    return row, idx
-                if game_map[row][idx] == WALL:
-                    return
-        case 'R':
-            # Start from left edge, skipping nulls
-            for idx in range(col):
-                if game_map[row][idx] == OPEN:
-                    return row, idx
-                if game_map[row][idx] == WALL:
-                    return
-        case 'U':
-            for idx in range(game_map.shape[0] - 1, 0, -1):
-                if game_map[idx][col] == OPEN:
-                    return idx, col
-                if game_map[idx][col] == WALL:
-                    return
-        case 'D':
-            for idx in range(row):
-                if game_map[idx][col] == OPEN:
-                    return idx, col
-                if game_map[idx][col] == WALL:
-                    return
+    start = 0
+    loop_step = 1
+    if facing in ['L', 'R']:
+        if facing == 'L':
+            start = game_map.shape[1] - 1
+            end = col + 1
+            loop_step = -1
+        else:  # Rightward
+            end = col - 1
+
+        for idx in range(start, end, loop_step):
+            if game_map[row][idx] == OPEN:
+                return row, idx
+            if game_map[row][idx] == WALL:
+                return
+    else:
+        if facing == 'D':
+            end = row - 1
+        else:  # Upwards
+            start = game_map.shape[0] - 1
+            end = row + 1
+            loop_step = -1
+
+        for idx in range(start, end, loop_step):
+            if game_map[idx][col] == OPEN:
+                return idx, col
+            if game_map[idx][col] == WALL:
+                return
+
+    # Guardpost - should be unreachable
+    assert False
 
 
 def new_direction(facing, rotation):
+    # Rotation is a barrel shift if array is ordered this way
     dd = 'LURD'
     old_idx = dd.index(facing)
     if rotation == 'R':
@@ -145,12 +142,14 @@ def test_new_direction():
 
 
 def calc_password(row, col, facing):
+    # their calcs are 1-based, not zero
     temp = (1000 * (row + 1)) + (4 * (col + 1))
     match facing:
         case 'L': m = 2
         case 'R': m = 0
         case 'U': m = 3
         case 'D': m = 1
+        case _: m = 999999
     return temp + m
 
 
@@ -158,74 +157,55 @@ def test_calc_password():
     assert calc_password(5, 7, 'R') == 6032
 
 
-def move(facing, count, gs_map, start_row, start_col):
-    num_rows = gs_map.shape[0]
-    num_cols = gs_map.shape[1]
-    move_count = 0
-    end_reason = None
-    wrap_around = False
-
-    new_col = start_col
+def move(facing, count, game_map, start_row, start_col):
     new_row = start_row
-    for _ in range(int(count)):
-        if facing == 'L' or facing == 'R':
-            increment = 1 if facing == 'R' else -1
+    new_col = start_col
+
+    if facing in ['L', 'R']:
+        increment = 1 if facing == 'R' else -1
+        for idx in range(count):
             temp = new_col
-            new_col = (new_col + increment) % num_cols
-            if gs_map[new_row][new_col] == OPEN:
-                move_count += 1
-                continue
-            if gs_map[new_row][new_col] == WALL:
+            new_col = (new_col + increment) % game_map.shape[1]
+            if game_map[start_row][new_col] == WALL:
                 new_col = temp
-                end_reason = 'Wall'
                 break
-            if gs_map[new_row][new_col] == NULL:
-                rc = find_open(gs_map, new_row, temp, facing)
+            elif game_map[start_row][new_col] == NULL:
+                rc = wrap_around_move(game_map, start_row, temp, facing)
                 if not rc:
                     new_col = temp
-                    end_reason = 'Wall'
                     break
                 else:
                     new_col = rc[1]
-                    move_count += 1
-                    wrap_around = True
                     continue
-
-        if facing == 'D' or facing == 'U':
-            increment = 1 if facing == 'D' else -1
+    else:  # Up/down
+        increment = 1 if facing == 'D' else -1
+        for idx in range(count):
             temp = new_row
-            new_row = (new_row + increment) % num_rows
-            if gs_map[new_row][new_col] == OPEN:
-                move_count += 1
-                continue
-            if gs_map[new_row][new_col] == WALL:
+            new_row = (new_row + increment) % game_map.shape[0]
+            if game_map[new_row][start_col] == WALL:
                 new_row = temp
-                end_reason = 'Wall'
                 break
-            if gs_map[new_row][new_col] == NULL:
-                rc = find_open(gs_map, temp, new_col, facing)
+            elif game_map[new_row][start_col] == NULL:
+                rc = wrap_around_move(game_map, temp, start_col, facing)
                 if not rc:
                     new_row = temp
-                    end_reason = 'Wall'
                     break
                 new_row = rc[0]
-                move_count += 1
-                wrap_around = True
                 continue
-    if move_count != count:
-        print(f"{move_count} {facing} out of {count} moves, {end_reason=}, {wrap_around=}")
+
+    if idx + 1 != count:
+        print(f"{idx + 1} {facing} out of {count} moves")
     else:
-        print(f'Moved {count} {facing}, {wrap_around=}')
+        print(f'Moved {count} {facing}')
     return new_row, new_col
 
 
 if __name__ == '__main__':
-    if False:
+    if False:  # Brad trick for sample/file toggle
         tokens = sample.split('\n\n')
     else:
         tokens = open(DATAFILE).read().split('\n\n')
-
-    game_map = parse_map(clean_data_lines(tokens[0].split(('\n'))))
+    game_map = parse_map(clean_data_lines(tokens[0].split('\n')))
     directions = parse_directions(tokens[1].strip())
     row, col, facing = find_start(game_map)
     for step in directions:
