@@ -79,24 +79,34 @@ def find_start(map):
 
 def find_open(game_map, row, col, facing):
     # if we're moving right and need the next open cell, its on the left edge
-    # FIXME stop at first wall while still skipping nulls
+    # N.B. Only called for wraparound.
+    # Returns row, col or None if wall
     match facing:
         case 'L':
             for idx in range(game_map.shape[1] - 1, col, -1):
                 if game_map[row][idx] == OPEN:
                     return row, idx
+                if game_map[row][idx] == WALL:
+                    return
         case 'R':
+            # Start from left edge, skipping nulls
             for idx in range(col):
                 if game_map[row][idx] == OPEN:
                     return row, idx
+                if game_map[row][idx] == WALL:
+                    return
         case 'U':
             for idx in range(game_map.shape[0], 0, -1):
                 if game_map[idx][col] == OPEN:
                     return idx, col
+                if game_map[idx][col] == WALL:
+                    return
         case 'D':
             for idx in range(row):
                 if game_map[idx][col] == OPEN:
                     return idx, col
+                if game_map[idx][col] == WALL:
+                    return
 
 
 def new_direction(facing, rotation):
