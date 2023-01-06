@@ -42,17 +42,12 @@ def parse_map(data_lines):
     num_rows = len(data_lines)
     num_cols = max([len(x) for x in data_lines])
     rc = make_2d_array(num_rows, num_cols)
+    lookup = {' ': NULL, '.': OPEN, '#': WALL}
 
     for row_idx, value in enumerate(data_lines):
         for col_idx, char in enumerate(value):
-            temp = None
-            if char == ' ':
-                temp = NULL
-            elif char == '.':
-                temp = OPEN
-            elif char == '#':
-                temp = WALL
-            rc[row_idx][col_idx] = temp
+            rc[row_idx][col_idx] = lookup[char]
+
     return np.array(rc)
 
 
@@ -141,14 +136,8 @@ def test_new_direction():
 
 def calc_password(row, col, facing):
     # their calcs are 1-based, not zero
-    temp = (1000 * (row + 1)) + (4 * (col + 1))
-    match facing:
-        case 'L': m = 2
-        case 'R': m = 0
-        case 'U': m = 3
-        case 'D': m = 1
-        case _: m = 999999
-    return temp + m
+    fc_add = {'R': 0, 'D': 1, 'L': 2, 'U': 3}
+    return (1000 * (row + 1)) + (4 * (col + 1)) + fc_add[facing]
 
 
 def test_calc_password():
@@ -159,11 +148,13 @@ def move(facing, count, game_map, start_row, start_col):
     new_row = start_row
     new_col = start_col
 
+    # What is the row, col increment for each facing?
+    in_lookup = {'L': (-1, 0), 'R': (1, 0), 'D': (0, 1), 'U': (0, -1)}
+
     if facing in ['L', 'R']:
-        increment = 1 if facing == 'R' else -1
         for idx in range(count):
             temp = new_col
-            new_col = (new_col + increment) % game_map.shape[1]
+            new_col = (new_col + in_lookup[facing][0]) % game_map.shape[1]
             if game_map[start_row][new_col] == WALL:
                 new_col = temp
                 break
@@ -176,10 +167,9 @@ def move(facing, count, game_map, start_row, start_col):
                     new_col = rc[1]
                     continue
     else:  # Up/down
-        increment = 1 if facing == 'D' else -1
         for idx in range(count):
             temp = new_row
-            new_row = (new_row + increment) % game_map.shape[0]
+            new_row = (new_row + in_lookup[facing][1]) % game_map.shape[0]
             if game_map[new_row][start_col] == WALL:
                 new_row = temp
                 break
@@ -212,4 +202,4 @@ if __name__ == '__main__':
         if step[1]:
             facing = new_direction(facing, step[1])
 
-    print(f"{calc_password(row, col, facing)=} {row=} {col=} {len(directions)=}")
+    print(f"{calc_password(row, col, facing)=} {row=} {col=} {facing=} {len(directions)=}")
