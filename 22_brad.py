@@ -348,7 +348,7 @@ if __name__ == '__main__':
     else:
         pure_input        = open(DATAFILE, 'r').read()
         expected_answer_a = 36518
-        expected_answer_b = -1
+        expected_answer_b = 55339
         grove             = Grove(210, 210)
 
     instructions = parse_data(pure_input, grove)
