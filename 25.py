@@ -100,7 +100,7 @@ def parse_input(data_lines):
 def try_base_conversion():
     for entry in sn_test:
         print(f'{entry=}')
-        assert (sn_to_dec(entry[1]) == entry[0])
+        assert sn_to_dec(entry[1]) == entry[0]
         assert (dec_to_sn(entry[0]) == entry[1])
 
     for entry in sd_test:
@@ -156,15 +156,12 @@ def dec_to_sn(decimal: int) -> str:
 
 def sn_to_dec(snafu: str) -> int:
     sn_lookup = {'2': 2, '1': 1, '0': 0, '-': -1, '=': -2}
-    cur_power = (len(snafu) - 1)
-    sn_deque = deque(snafu)
-    running_sum = 0
-    cur_character = sn_deque.popleft()
-    while cur_character:
-        running_sum += sn_lookup[cur_character] * 5 ** cur_power
-        cur_character = sn_deque.popleft() if len(sn_deque) > 0 else None
-        cur_power -= 1
-    return running_sum
+
+    rstr = snafu[::-1]
+    total = 0
+    for place in range(len(rstr)):
+        total += sn_lookup[rstr[place]] * 5 ** place
+    return total
 
 
 if __name__ == '__main__':
