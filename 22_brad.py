@@ -193,10 +193,15 @@ class Grove:
         pass
 
 
+TURN_LEFT  = 'L'
+TURN_RIGHT = 'R'
+
+
 class Step:
-    def __init__(self, new_direction=None, number_steps=None):
+    def __init__(self, new_direction=None, number_steps=None, turn=None):
         self.STEP_NEW_DIRECTION = new_direction
         self.STEP_NUMBER_STEPS  = number_steps
+        self.STEP_TURN          = turn
 
         log(f"CREATED STEP -> {str(self)}")
 
@@ -215,12 +220,12 @@ class Instructions:
         for right_index, right_segment in enumerate(split_right):
             if right_index > 0:
                 direction = DIRECTIONS_RIGHT[direction]
-                sequence.append(Step(new_direction=direction))
+                sequence.append(Step(new_direction=direction, turn=TURN_RIGHT))
             split_left = right_segment.split("L")
             for step_index, step_string in enumerate(split_left):
                 if step_index > 0:
                     direction = DIRECTIONS_LEFT[direction]
-                    sequence.append(Step(new_direction=direction))
+                    sequence.append(Step(new_direction=direction, turn=TURN_LEFT))
                 if len(step_string) > 0:
                     sequence.append(Step(number_steps=int(step_string)))
 
@@ -322,7 +327,7 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    do_sample = True
+    do_sample = False
 
     if do_sample:
         pure_input        = open(SAMPLE_DATAFILE, 'r').read()
@@ -396,9 +401,18 @@ if __name__ == '__main__':
     log(f"Starting instruction interpretation part A style...")
     current_direction = None
 
+    better_direction = DIRECTION_EAST
+
     for step in instructions.INSTRUCTIONS_SEQUENCE:
+
+        if step.STEP_TURN == TURN_RIGHT:
+            better_direction = DIRECTIONS_RIGHT[better_direction]
+        if step.STEP_TURN == TURN_LEFT:
+            better_direction = DIRECTIONS_LEFT[better_direction]
+
         if step.STEP_NEW_DIRECTION:
             current_direction = step.STEP_NEW_DIRECTION
+            assert current_direction == better_direction
         else:
             step_count = step.STEP_NUMBER_STEPS
 
