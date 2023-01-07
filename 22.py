@@ -192,6 +192,8 @@ def move(facing, count, game_map, start_row, start_col):
 
 
 if __name__ == '__main__':
+    # NB answer if 143208 in case I ever try to complete part 2.
+    # https://adventofcode.com/2022/day/22#part2
     if False:  # Brad trick for sample/file toggle
         tokens = sample.split('\n\n')
     else:
