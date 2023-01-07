@@ -168,7 +168,7 @@ def sn_to_dec(snafu: str) -> int:
 
 
 if __name__ == '__main__':
-    # try_base_conversion()
+    try_base_conversion()
     if False:
         snafus = parse_input(sample_data.split('\n'))
     else:
