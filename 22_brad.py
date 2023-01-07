@@ -3,6 +3,7 @@ import collections
 
 
 sample_answer_a = 6032
+sample_answer_b = 5031
 
 SAMPLE_DATAFILE = './data/22_sample.txt'
 DATAFILE = './data/22.txt'
@@ -94,7 +95,7 @@ class Square:
         warp = self.__warps.get(direction, None)
         if warp is None:
             # if no warp in specified direction, we just do the 2 space thing
-            return (direction, self.square_neighbor(direction), )
+            return self.square_neighbor(direction)
         else:
             # Otherwise take the warp which will change the direction as well
             return (warp.WARP_DIRECTION, warp.WARP_SQUARE, )
@@ -252,19 +253,27 @@ class Coordinate:
         return Coordinate((self.COORDINATE_ROW - other.COORDINATE_ROW,
                            self.COORDINATE_COL - other.COORDINATE_COL))
 
+    def __str__(self):
+        return f"({self.COORDINATE_ROW}, {self.COORDINATE_COL})"
+
     def __eq__(self, other):
         row = self.COORDINATE_ROW - other.COORDINATE_ROW
         col = self.COORDINATE_COL - other.COORDINATE_COL
+        log(f" While checking {self} equals {other}, saw {row=} and {col=}")
         return row == 0 and col == 0
 
     def planck_step(self, other):
-        row = self.COORDINATE_ROW - other.COORDINATE_ROW
-        col = self.COORDINATE_COL - other.COORDINATE_COL
+        row = other.COORDINATE_ROW - self.COORDINATE_ROW
+        col = other.COORDINATE_COL - self.COORDINATE_COL
         if row > 0: row = +1
         if row < 0: row = -1
         if col > 0: col = +1
         if col < 0: col = -1
-        return Coordinate((row, col))
+        rv = Coordinate((row, col))
+
+        log(f"Planck step from {self} to {other} has {row=} and {col=} and therefore {rv}")
+
+        return rv
 
 
 def generate_warps(grove,
@@ -276,8 +285,6 @@ def generate_warps(grove,
                    beta_start_tuple,
                    beta_terminal_tuple,
                    beta_new_direction):
-
-    return None
 
     alpha_start    = Coordinate(alpha_start_tuple)
     alpha_terminal = Coordinate(alpha_terminal_tuple)
@@ -293,6 +300,7 @@ def generate_warps(grove,
 
     is_finished = False
     while not is_finished:
+        log(f"adding warp from {alpha_working} to {beta_working}")
         alpha_square = grove.grove_locate_square(*alpha_working.COORDINATE_TUPLE)
         beta_square  = grove.grove_locate_square(*beta_working.COORDINATE_TUPLE)
 
@@ -307,7 +315,11 @@ def generate_warps(grove,
         alpha_working = alpha_working + alpha_stepper
         beta_working  = beta_working  + beta_stepper
 
-        is_finished == alpha_finished and beta_finished
+        is_finished = alpha_finished and beta_finished
+
+        log(f"{alpha_finished=} and {beta_finished=} causing {is_finished=}")
+
+
     return
 
 
@@ -326,15 +338,17 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    do_sample = True
+    do_sample = False
 
     if do_sample:
         pure_input        = open(SAMPLE_DATAFILE, 'r').read()
         expected_answer_a = sample_answer_a
+        expected_answer_b = sample_answer_b
         grove             = Grove(20, 20)
     else:
         pure_input        = open(DATAFILE, 'r').read()
         expected_answer_a = 36518
+        expected_answer_b = 143208  # 55339 is TOO LOW
         grove             = Grove(210, 210)
 
     instructions = parse_data(pure_input, grove)
@@ -367,7 +381,27 @@ if __name__ == '__main__':
 
     else:
         # Warps for real data
-        pass
+        generate_warps(grove,
+                       DIRECTION_NORTH, (1,   51),  (1,   100), DIRECTION_EAST,
+                       DIRECTION_WEST,  (151, 1),   (200, 1),   DIRECTION_SOUTH)
+        generate_warps(grove,
+                       DIRECTION_SOUTH, (200, 1),   (200, 50),  DIRECTION_SOUTH,
+                       DIRECTION_NORTH, (1,   101), (1,   150), DIRECTION_NORTH)
+        generate_warps(grove,
+                       DIRECTION_EAST,  (51, 100),  (100, 100), DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (50, 101),  (50,  150), DIRECTION_WEST)
+        generate_warps(grove,
+                       DIRECTION_WEST,  (51,  51),  (100, 51),  DIRECTION_SOUTH,
+                       DIRECTION_NORTH, (101, 1),   (101, 50),  DIRECTION_EAST)
+        generate_warps(grove,
+                       DIRECTION_WEST,  (101, 1),   (150, 1),   DIRECTION_EAST,
+                       DIRECTION_WEST,  (50,  51),  (1,   51),  DIRECTION_EAST)
+        generate_warps(grove,
+                       DIRECTION_EAST,  (151, 50),  (200, 50),  DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (150, 51),  (150, 100), DIRECTION_WEST)
+        generate_warps(grove,
+                       DIRECTION_EAST,  (1,   150), (50,  150), DIRECTION_WEST,
+                       DIRECTION_EAST,  (150, 100), (101, 100), DIRECTION_WEST)
 
     def _do_test_sequence():
         log(f"Starting test...")
@@ -413,7 +447,7 @@ if __name__ == '__main__':
 
             #log(f"Starting {step_count} steps in {current_direction=}")
             for _ in range(step_count):
-                next_direction, next_square = current_square.square_neighbor(current_direction)
+                next_direction, next_square = current_square.square_warp(current_direction)
                 if next_square.SQUARE_IS_WALL:
                     # log(f"Stuck since next is {str(next_square)}")
                     continue
@@ -430,7 +464,7 @@ if __name__ == '__main__':
     password     = 1000 * final_row + 4 * final_column + final_facing
     log(f"RESULTING PASSWORD is {password}.")
 
-    if password != expected_answer_a:
+    if password != expected_answer_b:
         raise Exception("MISMATCH")
 
     # log(f"No fails.")
