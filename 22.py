@@ -71,7 +71,7 @@ def parse_directions(move_str):
 
 
 def find_start(game_map):
-    # Return row, col for the starting point - leftmost top edge
+    # Return row, col, facing for the starting point - leftmost top edge
     starting_row = 0
     for col_idx in range(game_map.shape[1]):
         if game_map[starting_row][col_idx] == OPEN:
@@ -149,6 +149,7 @@ def move(facing, count, game_map, start_row, start_col):
     new_row = start_row
     new_col = start_col
 
+    print(f'Begin {start_row}, {start_col} {facing} {count}')
     # What is the row, col increment for each facing?
     in_lookup = {'L': (0, -1), 'R': (0, 1), 'D': (1, 0), 'U': (-1, 0)}
 
@@ -182,15 +183,16 @@ def move(facing, count, game_map, start_row, start_col):
                 new_row = rc[0]
                 continue
 
-    if idx + 1 != count:
-        print(f"{idx + 1} {facing} out of {count} moves")
-    else:
-        print(f'Moved {count} {facing}')
+    print(f'End {new_row}, {new_col}')
+    # if idx + 1 != count:
+    #     print(f"{idx + 1} {facing} out of {count} moves")
+    # else:
+    #     print(f'Moved {count} {facing}')
     return new_row, new_col
 
 
 if __name__ == '__main__':
-    if False:  # Brad trick for sample/file toggle
+    if True:  # Brad trick for sample/file toggle
         tokens = sample.split('\n\n')
     else:
         tokens = open(DATAFILE).read().split('\n\n')
@@ -198,7 +200,7 @@ if __name__ == '__main__':
     directions = parse_directions(tokens[1].strip())
     row, col, facing = find_start(game_map)
     for step in directions:
-        print(f"Starting {row=} {col=} {facing=} {step=}")
+        # print(f"Starting {row=} {col=} {facing=} {step=}")
         row, col = move(facing, step[0], game_map, row, col)
         if step[1]:
             facing = new_direction(facing, step[1])
