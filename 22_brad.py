@@ -53,6 +53,9 @@ SQUARE_OPEN = '.'
 def log(some_string):
     print(f"P22: {some_string}")
 
+def paullog(some_string):
+    print(f"{some_string}")
+
 
 class Warp:
     def __init__(self, square, direction):
@@ -391,16 +394,21 @@ if __name__ == '__main__':
             current_direction = step.STEP_NEW_DIRECTION
         else:
             step_count = step.STEP_NUMBER_STEPS
-            log(f"Starting {step_count} steps in {current_direction=}")
+
+            paullog(f"Begin {current_square.SQUARE_ROW}, {current_square.SQUARE_COLUMN} {current_direction} {step_count}")
+
+            #log(f"Starting {step_count} steps in {current_direction=}")
             for _ in range(step_count):
                 next_direction, next_square = current_square.square_neighbor(current_direction)
                 if next_square.SQUARE_IS_WALL:
-                    log(f"Stuck since next is {str(next_square)}")
+                    # log(f"Stuck since next is {str(next_square)}")
                     continue
                 else:
-                    log(f"Moving to {str(next_square)}")
+                    # log(f"Moving to {str(next_square)}")
                     current_square = next_square
                     current_direction = next_direction
+
+            paullog(f"End {current_square.SQUARE_ROW}, {current_square.SQUARE_COLUMN}")
 
     final_facing = DIRECTIONS_FACING[current_direction]
     final_row    = current_square.SQUARE_ROW
