@@ -338,7 +338,7 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    do_sample = True
+    do_sample = False
 
     if do_sample:
         pure_input        = open(SAMPLE_DATAFILE, 'r').read()
@@ -381,7 +381,27 @@ if __name__ == '__main__':
 
     else:
         # Warps for real data
-        pass
+        generate_warps(grove,
+                       DIRECTION_NORTH, (1,   51),  (1,   100), DIRECTION_EAST,
+                       DIRECTION_WEST,  (151, 1),   (200, 1),   DIRECTION_SOUTH)
+        generate_warps(grove,
+                       DIRECTION_SOUTH, (200, 1),   (200, 50),  DIRECTION_SOUTH,
+                       DIRECTION_NORTH, (1,   101), (1,   150), DIRECTION_NORTH)
+        generate_warps(grove,
+                       DIRECTION_EAST,  (51, 100),  (100, 100), DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (50, 101),  (50,  150), DIRECTION_WEST)
+        generate_warps(grove,
+                       DIRECTION_WEST,  (51,  51),  (100, 51),  DIRECTION_SOUTH,
+                       DIRECTION_NORTH, (101, 1),   (101, 50),  DIRECTION_EAST)
+        generate_warps(grove,
+                       DIRECTION_WEST,  (101, 1),   (150, 1),   DIRECTION_EAST,
+                       DIRECTION_WEST,  (50,  51),  (1,   51),  DIRECTION_EAST)
+        generate_warps(grove,
+                       DIRECTION_EAST,  (151, 50),  (200, 50),  DIRECTION_NORTH,
+                       DIRECTION_SOUTH, (150, 51),  (150, 100), DIRECTION_WEST)
+        generate_warps(grove,
+                       DIRECTION_EAST,  (1,   150), (50,  150), DIRECTION_WEST,
+                       DIRECTION_EAST,  (101, 100), (150, 100), DIRECTION_WEST)
 
     def _do_test_sequence():
         log(f"Starting test...")
