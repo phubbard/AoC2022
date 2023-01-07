@@ -19,10 +19,6 @@ sample = """
 
 DATAFILE = "./data/22.txt"
 
-# NB - ends with missing direction - see parser for special case handling
-pattern = r'(\d+)(\D)'
-matcher = re.compile(pattern)
-
 OPEN = 1
 WALL = 2
 NULL = 0
@@ -52,6 +48,10 @@ def parse_map(data_lines):
 
 
 def parse_directions(move_str):
+    # NB - ends with missing direction - see below for special case handling
+    pattern = r'(\d+)(\D)'
+    matcher = re.compile(pattern)
+
     # The heavy lifting only takes one call
     tuples = matcher.findall(move_str)
 
@@ -200,7 +200,6 @@ if __name__ == '__main__':
     directions = parse_directions(tokens[1].strip())
     row, col, facing = find_start(game_map)
     for step in directions:
-        # print(f"Starting {row=} {col=} {facing=} {step=}")
         row, col = move(facing, step[0], game_map, row, col)
         if step[1]:
             facing = new_direction(facing, step[1])
