@@ -252,6 +252,9 @@ class Coordinate:
         return Coordinate((self.COORDINATE_ROW - other.COORDINATE_ROW,
                            self.COORDINATE_COL - other.COORDINATE_COL))
 
+    def __str__(self):
+        return f"({self.COORDINATE_ROW}, {self.COORDINATE_COL})"
+
     def __eq__(self, other):
         row = self.COORDINATE_ROW - other.COORDINATE_ROW
         col = self.COORDINATE_COL - other.COORDINATE_COL
@@ -260,11 +263,15 @@ class Coordinate:
     def planck_step(self, other):
         row = self.COORDINATE_ROW - other.COORDINATE_ROW
         col = self.COORDINATE_COL - other.COORDINATE_COL
-        if row > 0: row = +1
-        if row < 0: row = -1
-        if col > 0: col = +1
-        if col < 0: col = -1
-        return Coordinate((row, col))
+        if row > 0: row = -1
+        if row < 0: row = +1
+        if col > 0: col = -1
+        if col < 0: col = +1
+        rv = Coordinate((row, col))
+
+        log(f"Planck step from {self} to {other} is {rv}")
+
+        return rv
 
 
 def generate_warps(grove,
@@ -276,8 +283,6 @@ def generate_warps(grove,
                    beta_start_tuple,
                    beta_terminal_tuple,
                    beta_new_direction):
-
-    return None
 
     alpha_start    = Coordinate(alpha_start_tuple)
     alpha_terminal = Coordinate(alpha_terminal_tuple)
@@ -293,6 +298,7 @@ def generate_warps(grove,
 
     is_finished = False
     while not is_finished:
+        log(f"adding warp from {alpha_working} to {beta_working}")
         alpha_square = grove.grove_locate_square(*alpha_working.COORDINATE_TUPLE)
         beta_square  = grove.grove_locate_square(*beta_working.COORDINATE_TUPLE)
 
@@ -413,7 +419,7 @@ if __name__ == '__main__':
 
             #log(f"Starting {step_count} steps in {current_direction=}")
             for _ in range(step_count):
-                next_direction, next_square = current_square.square_neighbor(current_direction)
+                next_direction, next_square = current_square.square_warp(current_direction)
                 if next_square.SQUARE_IS_WALL:
                     # log(f"Stuck since next is {str(next_square)}")
                     continue
