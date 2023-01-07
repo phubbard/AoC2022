@@ -348,7 +348,7 @@ if __name__ == '__main__':
     else:
         pure_input        = open(DATAFILE, 'r').read()
         expected_answer_a = 36518
-        expected_answer_b = 55339 # 55339 is TOO LOW
+        expected_answer_b = 143208 # 55339 is TOO LOW
         grove             = Grove(210, 210)
 
     instructions = parse_data(pure_input, grove)
@@ -401,7 +401,7 @@ if __name__ == '__main__':
                        DIRECTION_SOUTH, (150, 51),  (150, 100), DIRECTION_WEST)
         generate_warps(grove,
                        DIRECTION_EAST,  (1,   150), (50,  150), DIRECTION_WEST,
-                       DIRECTION_EAST,  (101, 100), (150, 100), DIRECTION_WEST)
+                       DIRECTION_EAST,  (150, 100), (101, 100), DIRECTION_WEST)
 
     def _do_test_sequence():
         log(f"Starting test...")
