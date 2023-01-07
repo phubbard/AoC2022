@@ -109,49 +109,30 @@ def try_base_conversion():
         assert dec_to_sn(entry[1]) == entry[0]
 
 
-# From https://stackoverflow.com/questions/2267362/how-to-convert-an-integer-to-a-string-in-any-base
-def numberToBase(n, b):
-    if n == 0:
-        return [0]
-    digits = []
-    while n:
-        digits.append(int(n % b))
-        n //= b
-    return digits[::-1]
+def reduce(n):
+    BASE = 5
+    OFFSET = 2
+    r = n % BASE
+    if r > OFFSET:
+        r = r - BASE
+    return r, (n - r) / BASE
 
 
-def base_5_array_to_snafu_array(b5_array):
-    safe_array = [0] + [x for x in b5_array]
-    safe_array.reverse()
+def dec_to_sn(n: int) -> str:
+    reverse_translation = {2: '2', 1: '1', 0: '0', -1: '-', -2: '='}
 
-    rv_array = []
-    for idx in range(len(safe_array)):
-        digit = safe_array[idx]
-        if digit == 3:
-            safe_array[idx + 1] += 1
-            digit = '='
-        elif digit == 4:
-            safe_array[idx + 1] += 1
-            digit = '-'
-        elif digit == 5:
-            safe_array[idx + 1] += 1
-            digit = '0'
-        else:
-            digit = str(digit)
-        rv_array.append(digit)
+    coffer = []
+    remains = n
+    while remains > 0:
+        a, b = reduce(remains)
+        remains = b
+        coffer.append(a)
+    # Now we have base 5 coefficients w/ values -2 to 2.  Have to reverse so that
+    # the smallest place value is on the right
+    coffer = coffer[::-1]
+    snafued = ''.join([reverse_translation[int(x)] for x in coffer])
 
-    if rv_array[-1] == '0':
-        rv_array.pop()
-
-    rv_array.reverse()
-
-    return rv_array
-
-
-def dec_to_sn(decimal: int) -> str:
-    as_base_5_array = numberToBase(decimal, 5)
-    my_snafu = ''.join(base_5_array_to_snafu_array(as_base_5_array))
-    return my_snafu
+    return snafued
 
 
 def sn_to_dec(snafu: str) -> int:
