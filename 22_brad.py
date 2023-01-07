@@ -45,6 +45,13 @@ DIRECTIONS_FACING = {
         DIRECTION_WEST:  2,
     }
 
+DIRECTIONS_PAUL = {
+        DIRECTION_NORTH: 'U',
+        DIRECTION_EAST:  'R',
+        DIRECTION_SOUTH: 'D',
+        DIRECTION_WEST:  'L',
+    }
+
 SQUARE_NONE = ' '
 SQUARE_WALL = '#'
 SQUARE_OPEN = '.'
@@ -315,7 +322,7 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    do_sample = False
+    do_sample = True
 
     if do_sample:
         pure_input        = open(SAMPLE_DATAFILE, 'r').read()
@@ -395,7 +402,7 @@ if __name__ == '__main__':
         else:
             step_count = step.STEP_NUMBER_STEPS
 
-            paullog(f"Begin {current_square.SQUARE_ROW}, {current_square.SQUARE_COLUMN} {current_direction} {step_count}")
+            paullog(f"Begin {current_square.SQUARE_ROW - 1}, {current_square.SQUARE_COLUMN - 1} {DIRECTIONS_PAUL[current_direction]} {step_count}")
 
             #log(f"Starting {step_count} steps in {current_direction=}")
             for _ in range(step_count):
@@ -408,7 +415,7 @@ if __name__ == '__main__':
                     current_square = next_square
                     current_direction = next_direction
 
-            paullog(f"End {current_square.SQUARE_ROW}, {current_square.SQUARE_COLUMN}")
+            paullog(f"End {current_square.SQUARE_ROW - 1}, {current_square.SQUARE_COLUMN - 1}")
 
     final_facing = DIRECTIONS_FACING[current_direction]
     final_row    = current_square.SQUARE_ROW
@@ -419,6 +426,6 @@ if __name__ == '__main__':
     if password != expected_answer_a:
         raise Exception("MISMATCH")
 
-    log(f"No fails.")
+    # log(f"No fails.")
 
 
