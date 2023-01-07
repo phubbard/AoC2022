@@ -3,6 +3,7 @@ import collections
 
 
 sample_answer_a = 6032
+sample_answer_b = 5031
 
 SAMPLE_DATAFILE = './data/22_sample.txt'
 DATAFILE = './data/22.txt'
@@ -342,10 +343,12 @@ if __name__ == '__main__':
     if do_sample:
         pure_input        = open(SAMPLE_DATAFILE, 'r').read()
         expected_answer_a = sample_answer_a
+        expected_answer_b = sample_answer_b
         grove             = Grove(20, 20)
     else:
         pure_input        = open(DATAFILE, 'r').read()
         expected_answer_a = 36518
+        expected_answer_b = -1
         grove             = Grove(210, 210)
 
     instructions = parse_data(pure_input, grove)
@@ -441,7 +444,7 @@ if __name__ == '__main__':
     password     = 1000 * final_row + 4 * final_column + final_facing
     log(f"RESULTING PASSWORD is {password}.")
 
-    if password != expected_answer_a:
+    if password != expected_answer_b:
         raise Exception("MISMATCH")
 
     # log(f"No fails.")
