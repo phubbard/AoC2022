@@ -78,16 +78,16 @@ class Square:
         self.__warps[leave_direction] = Warp(square, new_direction)
 
     def square_neighbor(self, direction):
-        return self.__directions[direction]
+        return (direction, self.__directions[direction], )
 
     def square_warp(self, direction):
         warp = self.__warps.get(direction, None)
         if warp is None:
             # if no warp in specified direction, we just do the 2 space thing
-            return direction, self.square_neighbor(direction)
+            return (direction, self.square_neighbor(direction), )
         else:
             # Otherwise take the warp which will change the direction as well
-            return warp.WARP_DIRECTION, warp.WARP_SQUARE
+            return (warp.WARP_DIRECTION, warp.WARP_SQUARE, )
 
     def __str__(self):
         wall_string = " WALL" if self.SQUARE_IS_WALL else ""
@@ -231,12 +231,12 @@ class Coordinate:
                                  self.COORDINATE_COL)
 
     def __add__(self, other):
-        return Coordinate(self.COORDINATE_ROW + other.COORDINATE_ROW,
-                          self.COORDINATE_COL + other.COORDINATE_COL)
+        return Coordinate((self.COORDINATE_ROW + other.COORDINATE_ROW,
+                           self.COORDINATE_COL + other.COORDINATE_COL))
 
     def __sub__(self, other):
-        return Coordinate(self.COORDINATE_ROW - other.COORDINATE_ROW,
-                          self.COORDINATE_COL - other.COORDINATE_COL)
+        return Coordinate((self.COORDINATE_ROW - other.COORDINATE_ROW,
+                           self.COORDINATE_COL - other.COORDINATE_COL))
 
     def __eq__(self, other):
         row = self.COORDINATE_ROW - other.COORDINATE_ROW
@@ -250,7 +250,7 @@ class Coordinate:
         if row < 0: row = -1
         if col > 0: col = +1
         if col < 0: col = -1
-        return Coordinate(row, col)
+        return Coordinate((row, col))
 
 
 def generate_warps(grove,
@@ -263,6 +263,8 @@ def generate_warps(grove,
                    beta_terminal_tuple,
                    beta_new_direction):
 
+    return None
+
     alpha_start    = Coordinate(alpha_start_tuple)
     alpha_terminal = Coordinate(alpha_terminal_tuple)
 
@@ -274,12 +276,14 @@ def generate_warps(grove,
 
     alpha_working = alpha_start
     beta_working  = beta_start
+
+    is_finished = False
     while not is_finished:
         alpha_square = grove.grove_locate_square(*alpha_working.COORDINATE_TUPLE)
         beta_square  = grove.grove_locate_square(*beta_working.COORDINATE_TUPLE)
 
-        alpha_square.square_tunnel(alpha_leave_direction, beta_square, alpha_new_direction)
-        beta_square.square_tunnel(beta_leave_direction, alpha_square, beta_new_direction)
+        alpha_square.square_tunnel(alpha_leave_direction, beta_square,  alpha_new_direction)
+        beta_square.square_tunnel(beta_leave_direction,   alpha_square, beta_new_direction)
 
         alpha_finished = (alpha_working == alpha_terminal)
         beta_finished  = (beta_working  == beta_terminal)
@@ -308,7 +312,7 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    do_sample = True
+    do_sample = False
 
     if do_sample:
         pure_input        = open(SAMPLE_DATAFILE, 'r').read()
@@ -349,6 +353,7 @@ if __name__ == '__main__':
 
     else:
         # Warps for real data
+        pass
 
     def _do_test_sequence():
         log(f"Starting test...")
@@ -378,7 +383,7 @@ if __name__ == '__main__':
         start_col += 1
     log(f"Start square found -> {str(current_square)}")
 
-    log(f"Starting instruction interpretation...")
+    log(f"Starting instruction interpretation part A style...")
     current_direction = None
 
     for step in instructions.INSTRUCTIONS_SEQUENCE:
@@ -388,7 +393,7 @@ if __name__ == '__main__':
             step_count = step.STEP_NUMBER_STEPS
             log(f"Starting {step_count} steps in {current_direction=}")
             for _ in range(step_count):
-                next_direction, next_square = current_square.square_warp(current_direction)
+                next_direction, next_square = current_square.square_neighbor(current_direction)
                 if next_square.SQUARE_IS_WALL:
                     log(f"Stuck since next is {str(next_square)}")
                     continue
