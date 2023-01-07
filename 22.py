@@ -20,7 +20,7 @@ sample = """
 DATAFILE = "./data/22.txt"
 
 # NB - ends with missing direction - see parser for special case handling
-pattern = r'(\d+)(\w)'
+pattern = r'(\d+)(\D)'
 matcher = re.compile(pattern)
 
 OPEN = 1
@@ -192,7 +192,7 @@ def move(facing, count, game_map, start_row, start_col):
 
 
 if __name__ == '__main__':
-    if True:  # Brad trick for sample/file toggle
+    if False:  # Brad trick for sample/file toggle
         tokens = sample.split('\n\n')
     else:
         tokens = open(DATAFILE).read().split('\n\n')
@@ -204,5 +204,7 @@ if __name__ == '__main__':
         row, col = move(facing, step[0], game_map, row, col)
         if step[1]:
             facing = new_direction(facing, step[1])
+        else:
+            print(f'last {step=}')
 
     print(f"{calc_password(row, col, facing)=} {row=} {col=} {facing=} {len(directions)=}")
