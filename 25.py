@@ -109,8 +109,49 @@ def try_base_conversion():
         assert dec_to_sn(entry[1]) == entry[0]
 
 
+# From https://stackoverflow.com/questions/2267362/how-to-convert-an-integer-to-a-string-in-any-base
+def numberToBase(n, b):
+    if n == 0:
+        return [0]
+    digits = []
+    while n:
+        digits.append(int(n % b))
+        n //= b
+    return digits[::-1]
+
+
+def base_5_array_to_snafu_array(b5_array):
+    safe_array = [0] + [x for x in b5_array]
+    safe_array.reverse()
+
+    rv_array = []
+    for idx in range(len(safe_array)):
+        digit = safe_array[idx]
+        if digit == 3:
+            safe_array[idx + 1] += 1
+            digit = '='
+        elif digit == 4:
+            safe_array[idx + 1] += 1
+            digit = '-'
+        elif digit == 5:
+            safe_array[idx + 1] += 1
+            digit = '0'
+        else:
+            digit = str(digit)
+        rv_array.append(digit)
+
+    if rv_array[-1] == '0':
+        rv_array.pop()
+
+    rv_array.reverse()
+
+    return rv_array
+
+
 def dec_to_sn(decimal: int) -> str:
-    return ''
+    as_base_5_array = numberToBase(decimal, 5)
+    my_snafu = ''.join(base_5_array_to_snafu_array(as_base_5_array))
+    return my_snafu
 
 
 def sn_to_dec(snafu: str) -> int:
