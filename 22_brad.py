@@ -198,34 +198,33 @@ TURN_RIGHT = 'R'
 
 
 class Step:
-    def __init__(self, new_direction=None, number_steps=None, turn=None):
-        self.STEP_NEW_DIRECTION = new_direction
+    def __init__(self, number_steps=None, turn=None):
         self.STEP_NUMBER_STEPS  = number_steps
         self.STEP_TURN          = turn
 
         log(f"CREATED STEP -> {str(self)}")
 
     def __str__(self):
-        if self.STEP_NEW_DIRECTION: return f"TURN {self.STEP_NEW_DIRECTION}"
-        else:                       return f"STEP {self.STEP_NUMBER_STEPS}"
+        if self.STEP_TURN: return f"TURN {self.STEP_TURN}"
+        else:              return f"STEP {self.STEP_NUMBER_STEPS}"
 
 
 class Instructions:
     def __init__(self, raw_string, starting_direction):
 
         direction = starting_direction
-        sequence = [Step(new_direction=direction)]
+        sequence = []
 
         split_right = raw_string.split("R")
         for right_index, right_segment in enumerate(split_right):
             if right_index > 0:
                 direction = DIRECTIONS_RIGHT[direction]
-                sequence.append(Step(new_direction=direction, turn=TURN_RIGHT))
+                sequence.append(Step(turn=TURN_RIGHT))
             split_left = right_segment.split("L")
             for step_index, step_string in enumerate(split_left):
                 if step_index > 0:
                     direction = DIRECTIONS_LEFT[direction]
-                    sequence.append(Step(new_direction=direction, turn=TURN_LEFT))
+                    sequence.append(Step(turn=TURN_LEFT))
                 if len(step_string) > 0:
                     sequence.append(Step(number_steps=int(step_string)))
 
@@ -327,7 +326,7 @@ def parse_data(data_string, grove):
 
 if __name__ == '__main__':
 
-    do_sample = False
+    do_sample = True
 
     if do_sample:
         pure_input        = open(SAMPLE_DATAFILE, 'r').read()
@@ -399,20 +398,14 @@ if __name__ == '__main__':
     log(f"Start square found -> {str(current_square)}")
 
     log(f"Starting instruction interpretation part A style...")
-    current_direction = None
-
-    better_direction = DIRECTION_EAST
+    current_direction = DIRECTION_EAST
 
     for step in instructions.INSTRUCTIONS_SEQUENCE:
 
         if step.STEP_TURN == TURN_RIGHT:
-            better_direction = DIRECTIONS_RIGHT[better_direction]
-        if step.STEP_TURN == TURN_LEFT:
-            better_direction = DIRECTIONS_LEFT[better_direction]
-
-        if step.STEP_NEW_DIRECTION:
-            current_direction = step.STEP_NEW_DIRECTION
-            assert current_direction == better_direction
+            current_direction = DIRECTIONS_RIGHT[current_direction]
+        elif step.STEP_TURN == TURN_LEFT:
+            current_direction = DIRECTIONS_LEFT[current_direction]
         else:
             step_count = step.STEP_NUMBER_STEPS
 
