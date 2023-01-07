@@ -94,7 +94,7 @@ class Square:
         warp = self.__warps.get(direction, None)
         if warp is None:
             # if no warp in specified direction, we just do the 2 space thing
-            return (direction, self.square_neighbor(direction), )
+            return self.square_neighbor(direction)
         else:
             # Otherwise take the warp which will change the direction as well
             return (warp.WARP_DIRECTION, warp.WARP_SQUARE, )
@@ -258,18 +258,19 @@ class Coordinate:
     def __eq__(self, other):
         row = self.COORDINATE_ROW - other.COORDINATE_ROW
         col = self.COORDINATE_COL - other.COORDINATE_COL
+        log(f" While checking {self} equals {other}, saw {row=} and {col=}")
         return row == 0 and col == 0
 
     def planck_step(self, other):
-        row = self.COORDINATE_ROW - other.COORDINATE_ROW
-        col = self.COORDINATE_COL - other.COORDINATE_COL
-        if row > 0: row = -1
-        if row < 0: row = +1
-        if col > 0: col = -1
-        if col < 0: col = +1
+        row = other.COORDINATE_ROW - self.COORDINATE_ROW
+        col = other.COORDINATE_COL - self.COORDINATE_COL
+        if row > 0: row = +1
+        if row < 0: row = -1
+        if col > 0: col = +1
+        if col < 0: col = -1
         rv = Coordinate((row, col))
 
-        log(f"Planck step from {self} to {other} is {rv}")
+        log(f"Planck step from {self} to {other} has {row=} and {col=} and therefore {rv}")
 
         return rv
 
@@ -313,7 +314,11 @@ def generate_warps(grove,
         alpha_working = alpha_working + alpha_stepper
         beta_working  = beta_working  + beta_stepper
 
-        is_finished == alpha_finished and beta_finished
+        is_finished = alpha_finished and beta_finished
+
+        log(f"{alpha_finished=} and {beta_finished=} causing {is_finished=}")
+
+
     return
 
 
