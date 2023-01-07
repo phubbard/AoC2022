@@ -101,6 +101,12 @@ def base_5_array_to_snafu_array(b5_array):
     return rv_array
 
 
+def dec_to_sn(decimal: int) -> str:
+    as_base_5_array = numberToBase(decimal, 5)
+    my_snafu = ''.join(base_5_array_to_snafu_array(as_base_5_array))
+    return my_snafu
+
+
 if __name__ == '__main__':
 
     do_sample = True
@@ -120,9 +126,11 @@ if __name__ == '__main__':
 
         my_snafu = ''.join(base_5_array_to_snafu_array(as_base_5_array))
 
+        my_better_snafu = dec_to_sn(dec)
+
         log(f" {dec} {snafu:>10}")
         log(f" {dec} {my_snafu:>10}")
-
+        assert my_better_snafu == snafu
 
     log("No failures.")
 
